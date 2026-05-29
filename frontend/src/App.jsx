@@ -1,0 +1,52 @@
+import {
+  Routes,
+  Route,
+} from 'react-router-dom'
+
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Books from './pages/Books'
+import BorrowedBooks from './pages/BorrowedBooks'
+
+import ProtectedRoute
+  from './components/ProtectedRoute'
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<Login />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/borrowed-books"
+        element={
+          <ProtectedRoute>
+            <BorrowedBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/books"
+        element={
+          <ProtectedRoute>
+            <Books />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  )
+}
+
+export default App

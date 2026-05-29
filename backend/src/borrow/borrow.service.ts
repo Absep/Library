@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService }
+from '../prisma/prisma.service';
 
 @Injectable()
 export class BorrowService {
@@ -18,7 +18,9 @@ export class BorrowService {
   ) {
     const book =
       await this.prisma.book.findUnique({
-        where: { id: bookId },
+        where: {
+          id: bookId,
+        },
       });
 
     if (!book) {
@@ -27,13 +29,40 @@ export class BorrowService {
       );
     }
 
-    if (book.availableCopies <= 0) {
-      throw new BadRequestException(
-        'Book unavailable',
+    if (
+      book.availableCopies <= 0
+    ) {
+      throw new Error(
+        'No copies available',
       );
     }
 
-    const dueDate = new Date();
+    // Prevent duplicate borrowing
+    const alreadyBorrowed =
+      await this.prisma.borrow.findFirst({
+        where: {
+          userId,
+          bookId,
+
+          status: {
+            in: [
+              'BORROWED',
+              'OVERDUE',
+            ],
+          },
+        },
+      });
+
+    if (
+      alreadyBorrowed
+    ) {
+      throw new Error(
+        'You already borrowed this book',
+      );
+    }
+
+    const dueDate =
+      new Date();
 
     dueDate.setDate(
       dueDate.getDate() + 14,
@@ -46,13 +75,30 @@ export class BorrowService {
           bookId,
           dueDate,
         },
+
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          book: true,
+        },
       });
 
     await this.prisma.book.update({
-      where: { id: bookId },
+      where: {
+        id: bookId,
+      },
+
       data: {
         availableCopies:
-          book.availableCopies - 1,
+          book.availableCopies -
+          1,
       },
     });
 
@@ -60,80 +106,139 @@ export class BorrowService {
   }
 
   async getBorrowedBooks() {
-  const borrows =
-    await this.prisma.borrow.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
+    const borrows =
+      await this.prisma.borrow.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
           },
+
+          book: true,
         },
-        book: true,
-      },
-    });
 
-  const today = new Date();
-
-  for (const borrow of borrows) {
-    const dueDate = new Date(borrow.dueDate);
-
-    if (
-      borrow.status === 'BORROWED' &&
-      dueDate.getTime() < today.getTime()
-    ) {
-      await this.prisma.borrow.update({
-        where: {
-          id: borrow.id,
-        },
-        data: {
-          status: 'OVERDUE',
+        orderBy: {
+          borrowDate:
+            'desc',
         },
       });
 
-      borrow.status = 'OVERDUE';
+    const today =
+      new Date();
+
+    for (const borrow of borrows) {
+      const dueDate =
+        new Date(
+          borrow.dueDate,
+        );
+
+      if (
+        borrow.status ===
+          'BORROWED' &&
+        dueDate.getTime() <
+          today.getTime()
+      ) {
+        await this.prisma.borrow.update({
+          where: {
+            id: borrow.id,
+          },
+
+          data: {
+            status:
+              'OVERDUE',
+          },
+        });
+
+        borrow.status =
+          'OVERDUE';
+      }
     }
+
+    return borrows;
   }
 
-  return borrows;
-}
+  async getMyBooks(
+    userId: number,
+  ) {
+    return this.prisma.borrow.findMany({
+      where: {
+        userId,
 
-  async returnBook(borrowId: number) {
-  const borrow =
-    await this.prisma.borrow.findUnique({
-      where: { id: borrowId },
+        OR: [
+          {
+            status:
+              'BORROWED',
+          },
+          {
+            status:
+              'OVERDUE',
+          },
+        ],
+      },
+
       include: {
         book: true,
       },
-    });
 
-  if (!borrow) {
-    throw new NotFoundException(
-      'Borrow record not found',
-    );
+      orderBy: {
+        borrowDate:
+          'desc',
+      },
+    });
   }
 
-  const updatedBorrow =
-    await this.prisma.borrow.update({
-      where: { id: borrowId },
+  async returnBook(
+    borrowId: number,
+  ) {
+    const borrow =
+      await this.prisma.borrow.findUnique({
+        where: {
+          id: borrowId,
+        },
+
+        include: {
+          book: true,
+        },
+      });
+
+    if (!borrow) {
+      throw new NotFoundException(
+        'Borrow record not found',
+      );
+    }
+
+    const updatedBorrow =
+      await this.prisma.borrow.update({
+        where: {
+          id: borrowId,
+        },
+
+        data: {
+          status:
+            'RETURNED',
+
+          returnDate:
+            new Date(),
+        },
+      });
+
+    await this.prisma.book.update({
+      where: {
+        id: borrow.bookId,
+      },
+
       data: {
-        status: 'RETURNED',
-        returnDate: new Date(),
+        availableCopies:
+          borrow.book
+            .availableCopies +
+          1,
       },
     });
 
-  await this.prisma.book.update({
-    where: {
-      id: borrow.bookId,
-    },
-    data: {
-      availableCopies:
-        borrow.book.availableCopies + 1,
-    },
-  });
-
-  return updatedBorrow;
-}
+    return updatedBorrow;
+  }
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Query,
   Param,
   Patch,
   Post,
@@ -22,8 +23,12 @@ export class BooksController {
   }
 
   @Get()
-  findAll() {
-    return this.booksService.findAll();
+  findAll(
+    @Query() query: any,
+  ) {
+    return this.booksService.findAll(
+      query,
+    );
   }
 
   @Get(':id')
