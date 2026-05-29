@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { PrismaService }
@@ -32,7 +33,7 @@ export class BorrowService {
     if (
       book.availableCopies <= 0
     ) {
-      throw new Error(
+      throw new BadRequestException(
         'No copies available',
       );
     }
@@ -56,7 +57,7 @@ export class BorrowService {
     if (
       alreadyBorrowed
     ) {
-      throw new Error(
+      throw new BadRequestException(
         'You already borrowed this book',
       );
     }
@@ -65,7 +66,7 @@ export class BorrowService {
       new Date();
 
     dueDate.setDate(
-      dueDate.getDate() + 14,
+      dueDate.getDate() + 7,
     );
 
     const borrow =
@@ -130,65 +131,123 @@ export class BorrowService {
     const today =
       new Date();
 
-    for (const borrow of borrows) {
-      const dueDate =
-        new Date(
-          borrow.dueDate,
-        );
+    return borrows.map(
+      (borrow) => {
+        const dueDate =
+          new Date(
+            borrow.dueDate,
+          );
 
-      if (
-        borrow.status ===
-          'BORROWED' &&
-        dueDate.getTime() <
-          today.getTime()
-      ) {
-        await this.prisma.borrow.update({
-          where: {
-            id: borrow.id,
-          },
+        let fine = 0;
 
-          data: {
-            status:
-              'OVERDUE',
-          },
-        });
+        if (
+          borrow.status !==
+            'RETURNED' &&
+          dueDate <
+            today
+        ) {
+          borrow.status =
+            'OVERDUE';
 
-        borrow.status =
-          'OVERDUE';
-      }
-    }
+          const diffTime =
+            today.getTime() -
+            dueDate.getTime();
 
-    return borrows;
+          const overdueDays =
+            Math.ceil(
+              diffTime /
+                (1000 *
+                  60 *
+                  60 *
+                  24),
+            );
+
+          fine =
+            overdueDays *
+            10;
+        }
+
+        return {
+          ...borrow,
+          fine,
+        };
+      },
+    );
   }
 
   async getMyBooks(
     userId: number,
   ) {
-    return this.prisma.borrow.findMany({
-      where: {
-        userId,
+    const borrows =
+      await this.prisma.borrow.findMany({
+        where: {
+          userId,
 
-        OR: [
-          {
-            status:
-              'BORROWED',
-          },
-          {
-            status:
-              'OVERDUE',
-          },
-        ],
-      },
+          OR: [
+            {
+              status:
+                'BORROWED',
+            },
+            {
+              status:
+                'OVERDUE',
+            },
+          ],
+        },
 
-      include: {
-        book: true,
-      },
+        include: {
+          book: true,
+        },
 
-      orderBy: {
-        borrowDate:
-          'desc',
+        orderBy: {
+          borrowDate:
+            'desc',
+        },
+      });
+
+    const today =
+      new Date();
+
+    return borrows.map(
+      (borrow) => {
+        const dueDate =
+          new Date(
+            borrow.dueDate,
+          );
+
+        let fine = 0;
+
+        if (
+          dueDate <
+          today
+        ) {
+          borrow.status =
+            'OVERDUE';
+
+          const diffTime =
+            today.getTime() -
+            dueDate.getTime();
+
+          const overdueDays =
+            Math.ceil(
+              diffTime /
+                (1000 *
+                  60 *
+                  60 *
+                  24),
+            );
+
+          fine =
+            overdueDays *
+            10;
+        }
+
+        return {
+          ...borrow,
+          fine,
+        };
       },
-    });
+    );
   }
 
   async returnBook(

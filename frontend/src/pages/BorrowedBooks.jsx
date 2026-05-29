@@ -134,7 +134,6 @@ function BorrowedBooks() {
           'Book Returned Successfully',
         )
 
-        // remove instantly from UI
         setBooks(
           (
             prevBooks,
@@ -248,6 +247,17 @@ function BorrowedBooks() {
                       borrow.dueDate,
                     ).toLocaleDateString()}
                   </p>
+
+                  {/* Fine */}
+                  {borrow.fine >
+                    0 && (
+                    <p className="text-red-600 font-bold mt-2">
+                      Fine: ₹
+                      {
+                        borrow.fine
+                      }
+                    </p>
+                  )}
 
                   {user.role ===
                     'STUDENT' &&
