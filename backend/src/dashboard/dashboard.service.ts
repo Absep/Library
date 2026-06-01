@@ -8,45 +8,74 @@ export class DashboardService {
   ) {}
 
   async getDashboardStats() {
-    const totalBooks =
-      await this.prisma.book.count();
+  const totalBooks =
+    await this.prisma.book.count();
 
-    const availableBooks =
-      await this.prisma.book.aggregate({
-        _sum: {
-          availableCopies: true,
+  const availableBooks =
+    await this.prisma.book.aggregate({
+      _sum: {
+        availableCopies: true,
+      },
+    });
+
+  const borrowedBooks =
+    await this.prisma.borrow.count({
+      where: {
+        status: 'BORROWED',
+      },
+    });
+
+  const overdueBooks =
+    await this.prisma.borrow.count({
+      where: {
+        status: 'OVERDUE',
+      },
+    });
+
+  const students =
+    await this.prisma.user.count({
+      where: {
+        role: 'STUDENT',
+      },
+    });
+
+  const recentBorrows =
+    await this.prisma.borrow.findMany({
+      take: 5,
+
+      orderBy: {
+        borrowDate: 'desc',
+      },
+
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
         },
-      });
 
-    const borrowedBooks =
-      await this.prisma.borrow.count({
-        where: {
-          status: 'BORROWED',
+        book: {
+          select: {
+            title: true,
+          },
         },
-      });
+      },
+    });
 
-    const overdueBooks =
-      await this.prisma.borrow.count({
-        where: {
-          status: 'OVERDUE',
-        },
-      });
+  return {
+    totalBooks,
 
-    const students =
-      await this.prisma.user.count({
-        where: {
-          role: 'STUDENT',
-        },
-      });
+    availableBooks:
+      availableBooks._sum
+        .availableCopies || 0,
 
-    return {
-      totalBooks,
-      availableBooks:
-        availableBooks._sum
-          .availableCopies || 0,
-      borrowedBooks,
-      overdueBooks,
-      students,
-    };
-  }
+    borrowedBooks,
+
+    overdueBooks,
+
+    students,
+
+    recentBorrows,
+  };
+}
 }

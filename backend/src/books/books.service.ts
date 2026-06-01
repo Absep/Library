@@ -57,26 +57,27 @@ export class BooksService {
       {};
 
     // Search
+    // Search
     if (search) {
       where.OR = [
         {
           title: {
-            contains:
-              search,
+            contains: search,
+            mode: 'insensitive',
           },
         },
 
         {
           author: {
-            contains:
-              search,
+            contains: search,
+            mode: 'insensitive',
           },
         },
 
         {
           category: {
-            contains:
-              search,
+            contains: search,
+            mode: 'insensitive',
           },
         },
       ];

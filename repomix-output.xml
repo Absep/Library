@@ -1,0 +1,3697 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+backend/.gitignore
+backend/.prettierrc
+backend/eslint.config.mjs
+backend/nest-cli.json
+backend/package.json
+backend/prisma.config.ts
+backend/prisma/migrations/20260527081720_init/migration.sql
+backend/prisma/migrations/migration_lock.toml
+backend/prisma/schema.prisma
+backend/README.md
+backend/src/app.controller.spec.ts
+backend/src/app.controller.ts
+backend/src/app.module.ts
+backend/src/app.service.ts
+backend/src/auth/auth.controller.spec.ts
+backend/src/auth/auth.controller.ts
+backend/src/auth/auth.module.ts
+backend/src/auth/auth.service.spec.ts
+backend/src/auth/auth.service.ts
+backend/src/auth/dto/create-auth.dto.ts
+backend/src/auth/dto/login.dto.ts
+backend/src/auth/dto/register.dto.ts
+backend/src/auth/dto/update-auth.dto.ts
+backend/src/auth/entities/auth.entity.ts
+backend/src/auth/jwt-auth.guard.ts
+backend/src/auth/jwt.strategy/jwt.strategy.ts
+backend/src/auth/roles.decorator.ts
+backend/src/auth/roles.guard.ts
+backend/src/books/books.controller.spec.ts
+backend/src/books/books.controller.ts
+backend/src/books/books.module.ts
+backend/src/books/books.service.spec.ts
+backend/src/books/books.service.ts
+backend/src/books/dto/create-book.dto.ts
+backend/src/books/dto/update-book.dto.ts
+backend/src/books/entities/book.entity.ts
+backend/src/borrow/borrow.controller.spec.ts
+backend/src/borrow/borrow.controller.ts
+backend/src/borrow/borrow.module.ts
+backend/src/borrow/borrow.service.spec.ts
+backend/src/borrow/borrow.service.ts
+backend/src/borrow/dto/create-borrow.dto.ts
+backend/src/borrow/dto/update-borrow.dto.ts
+backend/src/borrow/entities/borrow.entity.ts
+backend/src/dashboard/dashboard.controller.spec.ts
+backend/src/dashboard/dashboard.controller.ts
+backend/src/dashboard/dashboard.module.ts
+backend/src/dashboard/dashboard.service.spec.ts
+backend/src/dashboard/dashboard.service.ts
+backend/src/dashboard/dto/create-dashboard.dto.ts
+backend/src/dashboard/dto/update-dashboard.dto.ts
+backend/src/dashboard/entities/dashboard.entity.ts
+backend/src/main.ts
+backend/src/prisma/prisma.module.ts
+backend/src/prisma/prisma.service.spec.ts
+backend/src/prisma/prisma.service.ts
+backend/src/users/dto/create-user.dto.ts
+backend/src/users/dto/update-user.dto.ts
+backend/src/users/entities/user.entity.ts
+backend/src/users/users.controller.spec.ts
+backend/src/users/users.module.ts
+backend/src/users/users.service.spec.ts
+backend/src/users/users.service.ts
+backend/test/app.e2e-spec.ts
+backend/test/jest-e2e.json
+backend/tsconfig.build.json
+backend/tsconfig.json
+frontend/.gitignore
+frontend/eslint.config.js
+frontend/index.html
+frontend/package.json
+frontend/public/favicon.svg
+frontend/public/icons.svg
+frontend/README.md
+frontend/src/App.jsx
+frontend/src/components/Navbar.jsx
+frontend/src/components/ProtectedRoute.jsx
+frontend/src/components/Sidebar.jsx
+frontend/src/index.css
+frontend/src/main.jsx
+frontend/src/pages/AdminBooks.jsx
+frontend/src/pages/Books.jsx
+frontend/src/pages/BorrowedBooks.jsx
+frontend/src/pages/Dashboard.jsx
+frontend/src/pages/Login.jsx
+frontend/src/services/api.js
+frontend/vite.config.js
+package.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="frontend/src/pages/AdminBooks.jsx">
+import { useEffect, useState } from 'react'
+import api from '../services/api'
+import Sidebar from '../components/Sidebar'
+
+function AdminBooks() {
+  const [books, setBooks] = useState([])
+
+  const [form, setForm] = useState({
+    title: '',
+    author: '',
+    category: '',
+    availableCopies: 1,
+  })
+
+  const [editingId, setEditingId] =
+    useState(null)
+
+  useEffect(() => {
+    fetchBooks()
+  }, [])
+
+  const fetchBooks = async () => {
+    try {
+      const token =
+        localStorage.getItem(
+          'token',
+        )
+
+      const response =
+        await api.get(
+          '/books',
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+      setBooks(
+        response.data.data ||
+          response.data,
+      )
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleChange = (
+    e,
+  ) => {
+    setForm({
+      ...form,
+      [e.target.name]:
+        e.target.value,
+    })
+  }
+
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault()
+
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        if (editingId) {
+          await api.patch(
+            `/books/${editingId}`,
+            form,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+          alert(
+            'Book updated successfully',
+          )
+
+        } else {
+          await api.post(
+            '/books',
+            form,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+          alert(
+            'Book added successfully',
+          )
+        }
+
+        setForm({
+          title: '',
+          author: '',
+          category: '',
+          availableCopies: 1,
+        })
+
+        setEditingId(
+          null,
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        console.log(error)
+
+        alert(
+          error.response?.data
+            ?.message ||
+            'Operation failed',
+        )
+      }
+    }
+
+  const handleEdit = (
+    book,
+  ) => {
+    setEditingId(
+      book.id,
+    )
+
+    setForm({
+      title:
+        book.title,
+      author:
+        book.author,
+      category:
+        book.category,
+      availableCopies:
+        book.availableCopies,
+    })
+  }
+
+  const handleDelete =
+    async (id) => {
+      const confirmDelete =
+        window.confirm(
+          'Delete this book?',
+        )
+
+      if (
+        !confirmDelete
+      ) {
+        return
+      }
+
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        await api.delete(
+          `/books/${id}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+        alert(
+          'Book deleted successfully',
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        console.log(error)
+
+        alert(
+          error.response?.data
+            ?.message ||
+            'Delete failed',
+        )
+      }
+    }
+
+  return (
+    <div className="flex">
+      <Sidebar />
+
+      <div className="ml-64 w-full min-h-screen bg-gray-100 p-10">
+
+        <h1 className="text-4xl font-bold mb-6">
+          Manage Books
+        </h1>
+
+        <form
+          onSubmit={
+            handleSubmit
+          }
+          className="bg-white p-6 rounded-xl shadow mb-8"
+        >
+          <div className="grid md:grid-cols-2 gap-4">
+
+            <input
+              type="text"
+              name="title"
+              placeholder="Book Title"
+              value={
+                form.title
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              name="author"
+              placeholder="Author"
+              value={
+                form.author
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              name="category"
+              placeholder="Category"
+              value={
+                form.category
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="number"
+              name="availableCopies"
+              placeholder="Available Copies"
+              value={
+                form.availableCopies
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+          </div>
+
+          <button
+            type="submit"
+            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
+          >
+            {editingId
+              ? 'Update Book'
+              : 'Add Book'}
+          </button>
+
+        </form>
+
+        <div className="grid gap-4">
+
+          {books.map(
+            (book) => (
+              <div
+                key={
+                  book.id
+                }
+                className="bg-white p-5 rounded-xl shadow"
+              >
+
+                <h2 className="text-2xl font-bold">
+                  {
+                    book.title
+                  }
+                </h2>
+
+                <p>
+                  Author:
+                  {' '}
+                  {
+                    book.author
+                  }
+                </p>
+
+                <p>
+                  Category:
+                  {' '}
+                  {
+                    book.category
+                  }
+                </p>
+
+                <p>
+                  Available Copies:
+                  {' '}
+                  {
+                    book.availableCopies
+                  }
+                </p>
+
+                <div className="flex gap-3 mt-4">
+
+                  <button
+                    onClick={() =>
+                      handleEdit(
+                        book,
+                      )
+                    }
+                    className="bg-yellow-500 text-white px-4 py-2 rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      handleDelete(
+                        book.id,
+                      )
+                    }
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              </div>
+            ),
+          )}
+
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+export default AdminBooks
+</file>
+
+<file path=".gitignore">
+node_modules
+.env
+dist
+backend/node_modules
+backend/dist
+</file>
+
+<file path="backend/.gitignore">
+# compiled output
+/dist
+/node_modules
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# temp directory
+.temp
+.tmp
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+/generated/prisma
+</file>
+
+<file path="backend/.prettierrc">
+{
+  "singleQuote": true,
+  "trailingComma": "all"
+}
+</file>
+
+<file path="backend/eslint.config.mjs">
+// @ts-check
+import eslint from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    ignores: ['eslint.config.mjs'],
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintPluginPrettierRecommended,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+      sourceType: 'commonjs',
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+      "prettier/prettier": ["error", { endOfLine: "auto" }],
+    },
+  },
+);
+</file>
+
+<file path="backend/nest-cli.json">
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true
+  }
+}
+</file>
+
+<file path="backend/package.json">
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.0.1",
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "prisma": "^5.22.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^17.0.0",
+    "jest": "^30.0.0",
+    "prettier": "^3.4.2",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
+}
+</file>
+
+<file path="backend/prisma.config.ts">
+import 'dotenv/config';
+import { defineConfig, env } from 'prisma/config';
+
+export default defineConfig({
+  schema: 'prisma/schema.prisma',
+
+  migrations: {
+    path: 'prisma/migrations',
+  },
+
+  datasource: {
+    url: env('DATABASE_URL'),
+  },
+});
+</file>
+
+<file path="backend/prisma/migrations/20260527081720_init/migration.sql">
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'STUDENT');
+
+-- CreateEnum
+CREATE TYPE "BorrowStatus" AS ENUM ('BORROWED', 'RETURNED', 'OVERDUE');
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'STUDENT',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Book" (
+    "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "author" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "isbn" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "availableCopies" INTEGER NOT NULL,
+    "publishedYear" INTEGER,
+    "shelfLocation" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Borrow" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "bookId" INTEGER NOT NULL,
+    "borrowDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dueDate" TIMESTAMP(3) NOT NULL,
+    "returnDate" TIMESTAMP(3),
+    "status" "BorrowStatus" NOT NULL DEFAULT 'BORROWED',
+
+    CONSTRAINT "Borrow_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Book_isbn_key" ON "Book"("isbn");
+
+-- AddForeignKey
+ALTER TABLE "Borrow" ADD CONSTRAINT "Borrow_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Borrow" ADD CONSTRAINT "Borrow_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+</file>
+
+<file path="backend/prisma/migrations/migration_lock.toml">
+# Please do not edit this file manually
+# It should be added in your version-control system (e.g., Git)
+provider = "postgresql"
+</file>
+
+<file path="backend/prisma/schema.prisma">
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(STUDENT)
+
+  borrows    Borrow[]
+
+  createdAt  DateTime @default(now())
+}
+
+model Book {
+  id               Int      @id @default(autoincrement())
+  title            String
+  author           String
+  category         String
+  isbn             String   @unique
+  quantity         Int
+  availableCopies  Int
+  publishedYear    Int?
+  shelfLocation    String?
+
+  borrows          Borrow[]
+
+  createdAt        DateTime @default(now())
+}
+
+model Borrow {
+  id            Int            @id @default(autoincrement())
+
+  userId        Int
+  bookId        Int
+
+  borrowDate    DateTime       @default(now())
+  dueDate       DateTime
+  returnDate    DateTime?
+
+  status        BorrowStatus   @default(BORROWED)
+
+  user          User @relation(fields: [userId], references: [id])
+  book          Book @relation(fields: [bookId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum BorrowStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
+}
+</file>
+
+<file path="backend/README.md">
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
+
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
+
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+
+## Description
+
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+
+## Project setup
+
+```bash
+$ npm install
+```
+
+## Compile and run the project
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+## Run tests
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
+
+## Deployment
+
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+
+```bash
+$ npm install -g @nestjs/mau
+$ mau deploy
+```
+
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+
+## Resources
+
+Check out a few resources that may come in handy when working with NestJS:
+
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+</file>
+
+<file path="backend/src/app.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+describe('AppController', () => {
+  let appController: AppController;
+
+  beforeEach(async () => {
+    const app: TestingModule = await Test.createTestingModule({
+      controllers: [AppController],
+      providers: [AppService],
+    }).compile();
+
+    appController = app.get<AppController>(AppController);
+  });
+
+  describe('root', () => {
+    it('should return "Hello World!"', () => {
+      expect(appController.getHello()).toBe('Hello World!');
+    });
+  });
+});
+</file>
+
+<file path="backend/src/app.controller.ts">
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+}
+</file>
+
+<file path="backend/src/app.module.ts">
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { BooksModule } from './books/books.module';
+import { BorrowModule } from './borrow/borrow.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { PrismaModule } from './prisma/prisma.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    BooksModule,
+    BorrowModule,
+    DashboardModule,
+  ],
+})
+export class AppModule {}
+</file>
+
+<file path="backend/src/app.service.ts">
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return 'Hello World!';
+  }
+}
+</file>
+
+<file path="backend/src/auth/auth.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+
+describe('AuthController', () => {
+  let controller: AuthController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AuthController],
+      providers: [AuthService],
+    }).compile();
+
+    controller = module.get<AuthController>(AuthController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/auth/auth.controller.ts">
+import {
+  Body,
+  Controller,
+  Post,
+} from '@nestjs/common';
+
+import { AuthService } from './auth.service';
+
+@Controller('auth')
+export class AuthController {
+  constructor(
+    private authService: AuthService,
+  ) {}
+
+  @Post('register')
+  register(@Body() body: any) {
+    return this.authService.register(body);
+  }
+
+  @Post('login')
+  login(@Body() body: any) {
+    return this.authService.login(body);
+  }
+}
+</file>
+
+<file path="backend/src/auth/auth.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthService } from './auth.service';
+
+describe('AuthService', () => {
+  let service: AuthService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [AuthService],
+    }).compile();
+
+    service = module.get<AuthService>(AuthService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/auth/auth.service.ts">
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
+
+import * as bcrypt from 'bcrypt';
+
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  async register(body: any) {
+    const existingUser =
+      await this.usersService.findByEmail(body.email);
+
+    if (existingUser) {
+      throw new BadRequestException(
+        'Email already exists',
+      );
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(body.password, 10);
+
+    const user =
+      await this.usersService.createUser({
+        name: body.name,
+        email: body.email,
+        password: hashedPassword,
+        role: body.role || 'STUDENT',
+      });
+
+    return {
+      message: 'User registered successfully',
+      user,
+    };
+  }
+
+  async login(body: any) {
+    const user =
+      await this.usersService.findByEmail(body.email);
+
+    if (!user) {
+      throw new UnauthorizedException(
+        'Invalid credentials',
+      );
+    }
+
+    const passwordMatch =
+      await bcrypt.compare(
+        body.password,
+        user.password,
+      );
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException(
+        'Invalid credentials',
+      );
+    }
+
+    const token =
+      this.jwtService.sign({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      });
+
+    return {
+      access_token: token,
+      user,
+    };
+  }
+}
+</file>
+
+<file path="backend/src/auth/dto/create-auth.dto.ts">
+export class CreateAuthDto {}
+</file>
+
+<file path="backend/src/auth/dto/login.dto.ts">
+import { IsEmail, IsNotEmpty } from 'class-validator';
+
+export class LoginDto {
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  password: string;
+}
+</file>
+
+<file path="backend/src/auth/dto/register.dto.ts">
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+
+export class RegisterDto {
+  @IsNotEmpty()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @MinLength(6)
+  password: string;
+
+  role?: 'ADMIN' | 'STUDENT';
+}
+</file>
+
+<file path="backend/src/auth/dto/update-auth.dto.ts">
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateAuthDto } from './create-auth.dto';
+
+export class UpdateAuthDto extends PartialType(CreateAuthDto) {}
+</file>
+
+<file path="backend/src/auth/entities/auth.entity.ts">
+export class Auth {}
+</file>
+
+<file path="backend/src/auth/jwt-auth.guard.ts">
+import { AuthGuard } from '@nestjs/passport';
+
+export class JwtAuthGuard
+  extends AuthGuard('jwt') {}
+</file>
+
+<file path="backend/src/auth/jwt.strategy/jwt.strategy.ts">
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest:
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: process.env.JWT_SECRET!,
+    });
+  }
+
+  async validate(payload: any) {
+    return payload;
+  }
+}
+</file>
+
+<file path="backend/src/auth/roles.decorator.ts">
+import { SetMetadata } from '@nestjs/common';
+
+export const Roles = (...roles: string[]) =>
+  SetMetadata('roles', roles);
+</file>
+
+<file path="backend/src/auth/roles.guard.ts">
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+} from '@nestjs/common';
+
+import { Reflector } from '@nestjs/core';
+
+@Injectable()
+export class RolesGuard
+  implements CanActivate {
+
+  constructor(
+    private reflector: Reflector,
+  ) {}
+
+  canActivate(
+    context: ExecutionContext,
+  ): boolean {
+
+    const roles =
+      this.reflector.get<string[]>(
+        'roles',
+        context.getHandler(),
+      );
+
+    if (!roles) {
+      return true;
+    }
+
+    const request =
+      context.switchToHttp().getRequest();
+
+    const user = request.user;
+
+    return roles.includes(user.role);
+  }
+}
+</file>
+
+<file path="backend/src/books/books.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { BooksController } from './books.controller';
+import { BooksService } from './books.service';
+
+describe('BooksController', () => {
+  let controller: BooksController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [BooksController],
+      providers: [BooksService],
+    }).compile();
+
+    controller = module.get<BooksController>(BooksController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/books/books.module.ts">
+import { Module } from '@nestjs/common';
+import { BooksController } from './books.controller';
+import { BooksService } from './books.service';
+import { PrismaModule } from '../prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  controllers: [BooksController],
+  providers: [BooksService],
+})
+export class BooksModule {}
+</file>
+
+<file path="backend/src/books/books.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { BooksService } from './books.service';
+
+describe('BooksService', () => {
+  let service: BooksService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [BooksService],
+    }).compile();
+
+    service = module.get<BooksService>(BooksService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/books/dto/create-book.dto.ts">
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+export class CreateBookDto {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  author: string;
+
+  @IsNotEmpty()
+  @IsString()
+  category: string;
+
+  @IsNotEmpty()
+  @IsString()
+  isbn: string;
+
+  @IsInt()
+  quantity: number;
+
+  @IsInt()
+  availableCopies: number;
+
+  @IsOptional()
+  publishedYear?: number;
+
+  @IsOptional()
+  shelfLocation?: string;
+}
+</file>
+
+<file path="backend/src/books/dto/update-book.dto.ts">
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateBookDto } from './create-book.dto';
+
+export class UpdateBookDto
+  extends PartialType(CreateBookDto) {}
+</file>
+
+<file path="backend/src/books/entities/book.entity.ts">
+export class Book {}
+</file>
+
+<file path="backend/src/borrow/borrow.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { BorrowController } from './borrow.controller';
+import { BorrowService } from './borrow.service';
+
+describe('BorrowController', () => {
+  let controller: BorrowController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [BorrowController],
+      providers: [BorrowService],
+    }).compile();
+
+    controller = module.get<BorrowController>(BorrowController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/borrow/borrow.module.ts">
+import { Module } from '@nestjs/common';
+import { BorrowController } from './borrow.controller';
+import { BorrowService } from './borrow.service';
+import { PrismaModule } from '../prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  controllers: [BorrowController],
+  providers: [BorrowService],
+})
+export class BorrowModule {}
+</file>
+
+<file path="backend/src/borrow/borrow.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { BorrowService } from './borrow.service';
+
+describe('BorrowService', () => {
+  let service: BorrowService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [BorrowService],
+    }).compile();
+
+    service = module.get<BorrowService>(BorrowService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/borrow/dto/create-borrow.dto.ts">
+export class CreateBorrowDto {}
+</file>
+
+<file path="backend/src/borrow/dto/update-borrow.dto.ts">
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateBorrowDto } from './create-borrow.dto';
+
+export class UpdateBorrowDto extends PartialType(CreateBorrowDto) {}
+</file>
+
+<file path="backend/src/borrow/entities/borrow.entity.ts">
+export class Borrow {}
+</file>
+
+<file path="backend/src/dashboard/dashboard.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { DashboardController } from './dashboard.controller';
+import { DashboardService } from './dashboard.service';
+
+describe('DashboardController', () => {
+  let controller: DashboardController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [DashboardController],
+      providers: [DashboardService],
+    }).compile();
+
+    controller = module.get<DashboardController>(DashboardController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/dashboard/dashboard.controller.ts">
+import { Controller, Get } from '@nestjs/common';
+import { DashboardService } from './dashboard.service';
+
+@Controller('dashboard')
+export class DashboardController {
+  constructor(
+    private dashboardService: DashboardService,
+  ) {}
+
+  @Get()
+  getDashboardStats() {
+    return this.dashboardService.getDashboardStats();
+  }
+}
+</file>
+
+<file path="backend/src/dashboard/dashboard.module.ts">
+import { Module } from '@nestjs/common';
+import { DashboardService } from './dashboard.service';
+import { DashboardController } from './dashboard.controller';
+
+@Module({
+  controllers: [DashboardController],
+  providers: [DashboardService],
+})
+export class DashboardModule {}
+</file>
+
+<file path="backend/src/dashboard/dashboard.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { DashboardService } from './dashboard.service';
+
+describe('DashboardService', () => {
+  let service: DashboardService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [DashboardService],
+    }).compile();
+
+    service = module.get<DashboardService>(DashboardService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/dashboard/dashboard.service.ts">
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class DashboardService {
+  constructor(
+    private prisma: PrismaService,
+  ) {}
+
+  async getDashboardStats() {
+    const totalBooks =
+      await this.prisma.book.count();
+
+    const availableBooks =
+      await this.prisma.book.aggregate({
+        _sum: {
+          availableCopies: true,
+        },
+      });
+
+    const borrowedBooks =
+      await this.prisma.borrow.count({
+        where: {
+          status: 'BORROWED',
+        },
+      });
+
+    const overdueBooks =
+      await this.prisma.borrow.count({
+        where: {
+          status: 'OVERDUE',
+        },
+      });
+
+    const students =
+      await this.prisma.user.count({
+        where: {
+          role: 'STUDENT',
+        },
+      });
+
+    return {
+      totalBooks,
+      availableBooks:
+        availableBooks._sum
+          .availableCopies || 0,
+      borrowedBooks,
+      overdueBooks,
+      students,
+    };
+  }
+}
+</file>
+
+<file path="backend/src/dashboard/dto/create-dashboard.dto.ts">
+export class CreateDashboardDto {}
+</file>
+
+<file path="backend/src/dashboard/dto/update-dashboard.dto.ts">
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateDashboardDto } from './create-dashboard.dto';
+
+export class UpdateDashboardDto extends PartialType(CreateDashboardDto) {}
+</file>
+
+<file path="backend/src/dashboard/entities/dashboard.entity.ts">
+export class Dashboard {}
+</file>
+
+<file path="backend/src/prisma/prisma.module.ts">
+import { Global, Module } from '@nestjs/common';
+import { PrismaService } from './prisma.service';
+
+@Global()
+@Module({
+  providers: [PrismaService],
+  exports: [PrismaService],
+})
+export class PrismaModule {}
+</file>
+
+<file path="backend/src/prisma/prisma.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from './prisma.service';
+
+describe('PrismaService', () => {
+  let service: PrismaService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [PrismaService],
+    }).compile();
+
+    service = module.get<PrismaService>(PrismaService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/prisma/prisma.service.ts">
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+@Injectable()
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit {
+
+  async onModuleInit() {
+    await this.$connect();
+  }
+}
+</file>
+
+<file path="backend/src/users/dto/create-user.dto.ts">
+export class CreateUserDto {}
+</file>
+
+<file path="backend/src/users/dto/update-user.dto.ts">
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateUserDto } from './create-user.dto';
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
+</file>
+
+<file path="backend/src/users/entities/user.entity.ts">
+export class User {}
+</file>
+
+<file path="backend/src/users/users.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+
+describe('UsersController', () => {
+  let controller: UsersController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [UsersService],
+    }).compile();
+
+    controller = module.get<UsersController>(UsersController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/users/users.module.ts">
+import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { PrismaModule } from '../prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}
+</file>
+
+<file path="backend/src/users/users.service.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { UsersService } from './users.service';
+
+describe('UsersService', () => {
+  let service: UsersService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [UsersService],
+    }).compile();
+
+    service = module.get<UsersService>(UsersService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
+</file>
+
+<file path="backend/src/users/users.service.ts">
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class UsersService {
+  constructor(private prisma: PrismaService) {}
+
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
+
+  async createUser(data: any) {
+    return this.prisma.user.create({
+      data,
+    });
+  }
+}
+</file>
+
+<file path="backend/test/app.e2e-spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { App } from 'supertest/types';
+import { AppModule } from './../src/app.module';
+
+describe('AppController (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  it('/ (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect('Hello World!');
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+});
+</file>
+
+<file path="backend/test/jest-e2e.json">
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  }
+}
+</file>
+
+<file path="backend/tsconfig.build.json">
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}
+</file>
+
+<file path="backend/tsconfig.json">
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}
+</file>
+
+<file path="frontend/.gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="frontend/eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+])
+</file>
+
+<file path="frontend/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.16.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "tailwindcss": "^4.3.0",
+    "vite": "^8.0.12"
+  }
+}
+</file>
+
+<file path="frontend/public/favicon.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="46" fill="none" viewBox="0 0 48 46"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z" style="fill:#863bff;fill:color(display-p3 .5252 .23 1);fill-opacity:1"/><mask id="a" width="48" height="46" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M25.842 44.938c-.664.844-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.183c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.498 0-3.579-1.842-3.579H1.133c-.92 0-1.456-1.04-.92-1.787L9.91.473c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.578 1.842 3.578h11.377c.943 0 1.473 1.088.89 1.832L25.843 44.94z" style="fill:#000;fill-opacity:1"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#ede6ff" rx="5.508" ry="14.704" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -4.47 31.516)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#ede6ff" rx="10.399" ry="29.851" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -39.328 7.883)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#7e14ff" rx="5.508" ry="30.487" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -25.913 -14.639)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -32.644 -3.334)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -34.34 30.47)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#ede6ff" rx="14.072" ry="22.078" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="rotate(93.35 24.506 48.493)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx=".387" cy="8.972" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(39.51 .387 8.972)"/></g><g filter="url(#k)"><ellipse cx="47.523" cy="-6.092" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 47.523 -6.092)"/></g><g filter="url(#l)"><ellipse cx="41.412" cy="6.333" fill="#47bfff" rx="5.971" ry="9.665" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 41.412 6.333)"/></g><g filter="url(#m)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#n)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#o)"><ellipse cx="35.651" cy="29.907" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 35.651 29.907)"/></g><g filter="url(#p)"><ellipse cx="38.418" cy="32.4" fill="#47bfff" rx="5.971" ry="15.297" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 38.418 32.4)"/></g></g><defs><filter id="b" width="60.045" height="41.654" x="-19.77" y="16.149" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-54.613" y="-7.533" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-49.64" y="2.03" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-45.045" y="20.029" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-43.513" y="21.178" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="15.756" y="-17.901" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-27.636" y="-22.853" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="20.116" y="-38.415" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="24.641" y="-11.323" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="8.244" y="-2.416" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="18.713" y="10.588" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter></defs></svg>
+</file>
+
+<file path="frontend/public/icons.svg">
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="bluesky-icon" viewBox="0 0 16 17">
+    <g clip-path="url(#bluesky-clip)"><path fill="#08060d" d="M7.75 7.735c-.693-1.348-2.58-3.86-4.334-5.097-1.68-1.187-2.32-.981-2.74-.79C.188 2.065.1 2.812.1 3.251s.241 3.602.398 4.13c.52 1.744 2.367 2.333 4.07 2.145-2.495.37-4.71 1.278-1.805 4.512 3.196 3.309 4.38-.71 4.987-2.746.608 2.036 1.307 5.91 4.93 2.746 2.72-2.746.747-4.143-1.747-4.512 1.702.189 3.55-.4 4.07-2.145.156-.528.397-3.691.397-4.13s-.088-1.186-.575-1.406c-.42-.19-1.06-.395-2.741.79-1.755 1.24-3.64 3.752-4.334 5.099"/></g>
+    <defs><clipPath id="bluesky-clip"><path fill="#fff" d="M.1.85h15.3v15.3H.1z"/></clipPath></defs>
+  </symbol>
+  <symbol id="discord-icon" viewBox="0 0 20 19">
+    <path fill="#08060d" d="M16.224 3.768a14.5 14.5 0 0 0-3.67-1.153c-.158.286-.343.67-.47.976a13.5 13.5 0 0 0-4.067 0c-.128-.306-.317-.69-.476-.976A14.4 14.4 0 0 0 3.868 3.77C1.546 7.28.916 10.703 1.231 14.077a14.7 14.7 0 0 0 4.5 2.306q.545-.748.965-1.587a9.5 9.5 0 0 1-1.518-.74q.191-.14.372-.293c2.927 1.369 6.107 1.369 8.999 0q.183.152.372.294-.723.437-1.52.74.418.838.963 1.588a14.6 14.6 0 0 0 4.504-2.308c.37-3.911-.63-7.302-2.644-10.309m-9.13 8.234c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.894 0 1.614.82 1.599 1.82.001 1-.705 1.82-1.6 1.82m5.91 0c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.893 0 1.614.82 1.599 1.82 0 1-.706 1.82-1.6 1.82"/>
+  </symbol>
+  <symbol id="documentation-icon" viewBox="0 0 21 20">
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="m15.5 13.333 1.533 1.322c.645.555.967.833.967 1.178s-.322.623-.967 1.179L15.5 18.333m-3.333-5-1.534 1.322c-.644.555-.966.833-.966 1.178s.322.623.966 1.179l1.534 1.321"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M17.167 10.836v-4.32c0-1.41 0-2.117-.224-2.68-.359-.906-1.118-1.621-2.08-1.96-.599-.21-1.349-.21-2.848-.21-2.623 0-3.935 0-4.983.369-1.684.591-3.013 1.842-3.641 3.428C3 6.449 3 7.684 3 10.154v2.122c0 2.558 0 3.838.706 4.726q.306.383.713.671c.76.536 1.79.64 3.581.66"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M3 10a2.78 2.78 0 0 1 2.778-2.778c.555 0 1.209.097 1.748-.047.48-.129.854-.503.982-.982.145-.54.048-1.194.048-1.749a2.78 2.78 0 0 1 2.777-2.777"/>
+  </symbol>
+  <symbol id="github-icon" viewBox="0 0 19 19">
+    <path fill="#08060d" fill-rule="evenodd" d="M9.356 1.85C5.05 1.85 1.57 5.356 1.57 9.694a7.84 7.84 0 0 0 5.324 7.44c.387.079.528-.168.528-.376 0-.182-.013-.805-.013-1.454-2.165.467-2.616-.935-2.616-.935-.349-.91-.864-1.143-.864-1.143-.71-.48.051-.48.051-.48.787.051 1.2.805 1.2.805.695 1.194 1.817.857 2.268.649.064-.507.27-.857.49-1.052-1.728-.182-3.545-.857-3.545-3.87 0-.857.31-1.558.8-2.104-.078-.195-.349-1 .077-2.078 0 0 .657-.208 2.14.805a7.5 7.5 0 0 1 1.946-.26c.657 0 1.328.092 1.946.26 1.483-1.013 2.14-.805 2.14-.805.426 1.078.155 1.883.078 2.078.502.546.799 1.247.799 2.104 0 3.013-1.818 3.675-3.558 3.87.284.247.528.714.528 1.454 0 1.052-.012 1.896-.012 2.156 0 .208.142.455.528.377a7.84 7.84 0 0 0 5.324-7.441c.013-4.338-3.48-7.844-7.773-7.844" clip-rule="evenodd"/>
+  </symbol>
+  <symbol id="social-icon" viewBox="0 0 20 20">
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M12.5 6.667a4.167 4.167 0 1 0-8.334 0 4.167 4.167 0 0 0 8.334 0"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M2.5 16.667a5.833 5.833 0 0 1 8.75-5.053m3.837.474.513 1.035c.07.144.257.282.414.309l.93.155c.596.1.736.536.307.965l-.723.73a.64.64 0 0 0-.152.531l.207.903c.164.715-.213.991-.84.618l-.872-.52a.63.63 0 0 0-.577 0l-.872.52c-.624.373-1.003.094-.84-.618l.207-.903a.64.64 0 0 0-.152-.532l-.723-.729c-.426-.43-.289-.864.306-.964l.93-.156a.64.64 0 0 0 .412-.31l.513-1.034c.28-.562.735-.562 1.012 0"/>
+  </symbol>
+  <symbol id="x-icon" viewBox="0 0 19 19">
+    <path fill="#08060d" fill-rule="evenodd" d="M1.893 1.98c.052.072 1.245 1.769 2.653 3.77l2.892 4.114c.183.261.333.48.333.486s-.068.089-.152.183l-.522.593-.765.867-3.597 4.087c-.375.426-.734.834-.798.905a1 1 0 0 0-.118.148c0 .01.236.017.664.017h.663l.729-.83c.4-.457.796-.906.879-.999a692 692 0 0 0 1.794-2.038c.034-.037.301-.34.594-.675l.551-.624.345-.392a7 7 0 0 1 .34-.374c.006 0 .93 1.306 2.052 2.903l2.084 2.965.045.063h2.275c1.87 0 2.273-.003 2.266-.021-.008-.02-1.098-1.572-3.894-5.547-2.013-2.862-2.28-3.246-2.273-3.266.008-.019.282-.332 2.085-2.38l2-2.274 1.567-1.782c.022-.028-.016-.03-.65-.03h-.674l-.3.342a871 871 0 0 1-1.782 2.025c-.067.075-.405.458-.75.852a100 100 0 0 1-.803.91c-.148.172-.299.344-.99 1.127-.304.343-.32.358-.345.327-.015-.019-.904-1.282-1.976-2.808L6.365 1.85H1.8zm1.782.91 8.078 11.294c.772 1.08 1.413 1.973 1.425 1.984.016.017.241.02 1.05.017l1.03-.004-2.694-3.766L7.796 5.75 5.722 2.852l-1.039-.004-1.039-.004z" clip-rule="evenodd"/>
+  </symbol>
+</svg>
+</file>
+
+<file path="frontend/README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="frontend/src/App.jsx">
+import {
+  Routes,
+  Route,
+} from 'react-router-dom'
+
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Books from './pages/Books'
+import BorrowedBooks from './pages/BorrowedBooks'
+import AdminBooks from './pages/AdminBooks'
+
+import ProtectedRoute
+  from './components/ProtectedRoute'
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<Login />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/admin-books"
+        element={
+          <ProtectedRoute>
+            <AdminBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/borrowed-books"
+        element={
+          <ProtectedRoute>
+            <BorrowedBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/books"
+        element={
+          <ProtectedRoute>
+            <Books />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  )
+}
+
+export default App
+</file>
+
+<file path="frontend/src/components/Navbar.jsx">
+
+</file>
+
+<file path="frontend/src/components/ProtectedRoute.jsx">
+import { Navigate } from 'react-router-dom'
+
+function ProtectedRoute({
+  children,
+}) {
+  const token =
+    localStorage.getItem(
+      'token',
+    )
+
+  return token
+    ? children
+    : <Navigate to="/" />
+}
+
+export default ProtectedRoute
+</file>
+
+<file path="frontend/src/components/Sidebar.jsx">
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom'
+
+function Sidebar() {
+  const navigate =
+    useNavigate()
+
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        'user',
+      ),
+    )
+
+  const handleLogout =
+    () => {
+      localStorage.removeItem(
+        'token',
+      )
+
+      localStorage.removeItem(
+        'user',
+      )
+
+      navigate('/')
+    }
+
+  return (
+    <div className="w-64 h-screen bg-gray-900 text-white p-5 fixed">
+
+      <h1 className="text-2xl font-bold mb-10">
+        Library
+      </h1>
+
+      <div className="flex flex-col gap-4">
+
+        {user.role ===
+          'ADMIN' && (
+          <>
+            <Link
+              to="/dashboard"
+              className="hover:text-blue-400"
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              to="/admin-books"
+              className="hover:text-blue-400"
+            >
+              Manage Books
+            </Link>
+          </>
+        )}
+
+        <Link
+          to="/books"
+          className="hover:text-blue-400"
+        >
+          Books
+        </Link>
+
+        <Link
+          to="/borrowed-books"
+          className="hover:text-blue-400"
+        >
+          Borrowed Books
+        </Link>
+
+        <button
+          onClick={
+            handleLogout
+          }
+          className="bg-red-500 p-2 rounded mt-10"
+        >
+          Logout
+        </button>
+
+      </div>
+    </div>
+  )
+}
+
+export default Sidebar
+</file>
+
+<file path="frontend/src/index.css">
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+</file>
+
+<file path="frontend/src/main.jsx">
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import {
+  BrowserRouter,
+} from 'react-router-dom'
+
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(
+  document.getElementById('root')
+).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+)
+</file>
+
+<file path="frontend/src/pages/Books.jsx">
+import {
+  useEffect,
+  useState,
+} from 'react'
+
+import api
+from '../services/api'
+
+import Sidebar
+from '../components/Sidebar'
+
+function Books() {
+  const [books, setBooks] =
+    useState([])
+
+  const [search, setSearch] =
+    useState('')
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        'user',
+      ),
+    )
+
+  useEffect(() => {
+    fetchBooks()
+  }, [])
+
+  const fetchBooks =
+    async () => {
+      try {
+        const response =
+          await api.get(
+            `/books?search=${search}`,
+          )
+
+        setBooks(
+          response.data.data,
+        )
+
+      } catch (error) {
+        console.log(error)
+
+      } finally {
+        setLoading(false)
+      }
+    }
+
+  const handleBorrow =
+    async (bookId) => {
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        await api.post(
+          `/borrow/${user.id}/${bookId}`,
+          {},
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+        alert(
+          'Book Borrowed Successfully',
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        alert(
+          error.response?.data
+            ?.message ||
+          'Could not borrow book',
+        )
+      }
+    }
+
+  return (
+    <div className="flex">
+
+      <Sidebar />
+
+      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
+
+        <h1 className="text-4xl font-bold mb-6">
+          Books
+        </h1>
+
+        <div className="flex gap-3 mb-8">
+
+          <input
+            type="text"
+            placeholder="Search books..."
+            className="border p-3 rounded w-full"
+            value={search}
+            onChange={(e) =>
+              setSearch(
+                e.target.value,
+              )
+            }
+          />
+
+          <button
+            onClick={
+              fetchBooks
+            }
+            className="bg-blue-500 text-white px-6 rounded"
+          >
+            Search
+          </button>
+
+        </div>
+
+        {loading ? (
+          <p>
+            Loading...
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {books.map(
+              (book) => (
+                <div
+                  key={book.id}
+                  className="bg-white rounded-xl shadow p-5"
+                >
+                  <h2 className="text-2xl font-bold">
+                    {book.title}
+                  </h2>
+
+                  <p className="text-gray-600">
+                    {
+                      book.author
+                    }
+                  </p>
+
+                  <p className="mt-2">
+                    Category:
+                    {' '}
+                    {
+                      book.category
+                    }
+                  </p>
+
+                  <p>
+                    Available:
+                    {' '}
+                    {
+                      book.availableCopies
+                    }
+                  </p>
+
+                  {user.role ===
+                    'STUDENT' && (
+                    <button
+                      onClick={() =>
+                        handleBorrow(
+                          book.id,
+                        )
+                      }
+                      className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+                    >
+                      Borrow
+                    </button>
+                  )}
+
+                </div>
+              ),
+            )}
+
+          </div>
+        )}
+
+      </div>
+    </div>
+  )
+}
+
+export default Books
+</file>
+
+<file path="frontend/src/pages/Dashboard.jsx">
+import {
+  useEffect,
+  useState,
+} from 'react'
+
+import api
+from '../services/api'
+
+import Sidebar
+from '../components/Sidebar'
+
+function Dashboard() {
+  const [stats, setStats] =
+    useState(null)
+
+  useEffect(() => {
+    fetchDashboard()
+  }, [])
+
+  const fetchDashboard =
+    async () => {
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        const response =
+          await api.get(
+            '/dashboard',
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+        setStats(
+          response.data,
+        )
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+  return (
+    <div className="flex">
+
+      <Sidebar />
+
+      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
+
+        <h1 className="text-4xl font-bold mb-8">
+          Admin Dashboard
+        </h1>
+
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <div className="bg-white p-6 rounded-xl shadow">
+              <h2 className="text-gray-500">
+                Total Books
+              </h2>
+
+              <p className="text-3xl font-bold">
+                {
+                  stats.totalBooks
+                }
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow">
+              <h2 className="text-gray-500">
+                Borrowed Books
+              </h2>
+
+              <p className="text-3xl font-bold">
+                {
+                  stats.borrowedBooks
+                }
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow">
+              <h2 className="text-gray-500">
+                Overdue Books
+              </h2>
+
+              <p className="text-3xl font-bold">
+                {
+                  stats.overdueBooks
+                }
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow">
+              <h2 className="text-gray-500">
+                Students
+              </h2>
+
+              <p className="text-3xl font-bold">
+                {
+                  stats.students
+                }
+              </p>
+            </div>
+
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default Dashboard
+</file>
+
+<file path="frontend/src/pages/Login.jsx">
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import api from '../services/api'
+
+function Login() {
+  const [email, setEmail] =
+    useState('')
+
+  const [password, setPassword] =
+    useState('')
+
+  const navigate =
+    useNavigate()
+
+  const handleLogin = async (
+    e,
+  ) => {
+    e.preventDefault()
+
+    try {
+      const response =
+        await api.post(
+          '/auth/login',
+          {
+            email,
+            password,
+          },
+        )
+
+      localStorage.setItem(
+        'token',
+        response.data
+          .access_token,
+      )
+
+      localStorage.setItem(
+        'user',
+        JSON.stringify(
+          response.data.user,
+        ),
+      )
+
+      const user =
+        response.data.user
+
+      if (
+        user.role === 'ADMIN'
+      ) {
+        navigate(
+          '/dashboard',
+        )
+      } else {
+        navigate('/books')
+      }
+
+    } catch (error) {
+      alert(
+        'Invalid credentials',
+      )
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded-xl shadow-md w-96"
+      >
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Library Login
+        </h1>
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border p-3 rounded mb-4"
+          value={email}
+          onChange={(e) =>
+            setEmail(
+              e.target.value,
+            )
+          }
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border p-3 rounded mb-4"
+          value={password}
+          onChange={(e) =>
+            setPassword(
+              e.target.value,
+            )
+          }
+          required
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-3 rounded transition"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  )
+}
+
+export default Login
+</file>
+
+<file path="frontend/src/services/api.js">
+import axios from 'axios'
+
+const api = axios.create({
+  baseURL: 'http://localhost:3000',
+})
+
+export default api
+</file>
+
+<file path="frontend/vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+})
+</file>
+
+<file path="package.json">
+{
+  "dependencies": {
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@prisma/client": "^7.8.0",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "prisma": "^7.8.0"
+  }
+}
+</file>
+
+<file path="backend/src/auth/auth.module.ts">
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { RolesGuard } from './roles.guard';
+
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtStrategy } from './jwt.strategy/jwt.strategy';
+
+import { UsersModule } from '../users/users.module';
+
+@Module({
+  imports: [
+    UsersModule,
+    PassportModule,
+
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: {
+        expiresIn: '1d',
+      },
+    }),
+  ],
+
+  controllers: [AuthController],
+
+  providers: [
+    AuthService,
+    JwtStrategy,
+    RolesGuard,
+  ],
+})
+export class AuthModule {}
+</file>
+
+<file path="backend/src/books/books.controller.ts">
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Query,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+
+import { BooksService } from './books.service';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+
+@Controller('books')
+export class BooksController {
+  constructor(
+    private booksService: BooksService,
+  ) {}
+
+  @Post()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  create(
+    @Body() body: any,
+  ) {
+    return this.booksService.create(
+      body,
+    );
+  }
+
+  @Get()
+  @UseGuards(
+    JwtAuthGuard,
+  )
+  findAll(
+    @Query() query: any,
+  ) {
+    return this.booksService.findAll(
+      query,
+    );
+  }
+
+  @Get(':id')
+  @UseGuards(
+    JwtAuthGuard,
+  )
+  findOne(
+    @Param('id') id: string,
+  ) {
+    return this.booksService.findOne(
+      +id,
+    );
+  }
+
+  @Patch(':id')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  update(
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.booksService.update(
+      +id,
+      body,
+    );
+  }
+
+  @Delete(':id')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  remove(
+    @Param('id') id: string,
+  ) {
+    return this.booksService.remove(
+      +id,
+    );
+  }
+}
+</file>
+
+<file path="backend/src/borrow/borrow.controller.ts">
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
+
+import { BorrowService }
+from './borrow.service';
+
+import { JwtAuthGuard }
+from '../auth/jwt-auth.guard';
+
+import { RolesGuard }
+from '../auth/roles.guard';
+
+import { Roles }
+from '../auth/roles.decorator';
+
+@Controller('borrow')
+export class BorrowController {
+  constructor(
+    private borrowService:
+      BorrowService,
+  ) {}
+
+  @Post(
+    ':userId/:bookId',
+  )
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('STUDENT')
+  borrowBook(
+    @Param('userId')
+    userId: string,
+
+    @Param('bookId')
+    bookId: string,
+  ) {
+    return this.borrowService.borrowBook(
+      +userId,
+      +bookId,
+    );
+  }
+
+  @Get()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  getBorrowedBooks() {
+    return this.borrowService.getBorrowedBooks();
+  }
+
+  @Get('my/:userId')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('STUDENT')
+  getMyBooks(
+    @Param('userId')
+    userId: string,
+  ) {
+    return this.borrowService.getMyBooks(
+      +userId,
+    );
+  }
+
+  @Patch(
+    'return/:id',
+  )
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('STUDENT')
+  returnBook(
+    @Param('id')
+    id: string,
+  ) {
+    return this.borrowService.returnBook(
+      +id,
+    );
+  }
+}
+</file>
+
+<file path="backend/src/main.ts">
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app =
+    await NestFactory.create(
+      AppModule,
+    );
+
+  app.enableCors();
+
+  await app.listen(3000);
+}
+bootstrap();
+</file>
+
+<file path="frontend/src/pages/BorrowedBooks.jsx">
+import {
+  useEffect,
+  useState,
+} from 'react'
+
+import api
+from '../services/api'
+
+import Sidebar
+from '../components/Sidebar'
+
+function BorrowedBooks() {
+  const [books, setBooks] =
+    useState([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        'user',
+      ),
+    )
+
+  useEffect(() => {
+    fetchBooks()
+  }, [])
+
+  const fetchBooks =
+    async () => {
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        const endpoint =
+          user.role ===
+          'ADMIN'
+            ? '/borrow'
+            : `/borrow/my/${user.id}`
+
+        const response =
+          await api.get(
+            endpoint,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+        // Remove duplicate books for admin
+        if (
+          user.role ===
+          'ADMIN'
+        ) {
+          const uniqueBooks =
+            Object.values(
+              response.data.reduce(
+                (
+                  acc,
+                  item,
+                ) => {
+                  const key =
+                    `${item.userId}-${item.bookId}`
+
+                  if (
+                    !acc[
+                      key
+                    ] ||
+                    new Date(
+                      item.borrowDate,
+                    ) >
+                      new Date(
+                        acc[
+                          key
+                        ]
+                          .borrowDate,
+                      )
+                  ) {
+                    acc[
+                      key
+                    ] =
+                      item
+                  }
+
+                  return acc
+                },
+                {},
+              ),
+            )
+
+          setBooks(
+            uniqueBooks,
+          )
+
+        } else {
+          setBooks(
+            response.data,
+          )
+        }
+
+      } catch (error) {
+        console.log(error)
+
+      } finally {
+        setLoading(false)
+      }
+    }
+
+  const returnBook =
+    async (id) => {
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        await api.patch(
+          `/borrow/return/${id}`,
+          {},
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+        alert(
+          'Book Returned Successfully',
+        )
+
+        setBooks(
+          (
+            prevBooks,
+          ) =>
+            prevBooks.filter(
+              (
+                book,
+              ) =>
+                book.id !==
+                id,
+            ),
+        )
+
+      } catch (error) {
+        console.log(error)
+
+        alert(
+          error.response?.data
+            ?.message ||
+            'Could not return book',
+        )
+      }
+    }
+
+  return (
+    <div className="flex">
+
+      <Sidebar />
+
+      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
+
+        <h1 className="text-4xl font-bold mb-6">
+          Borrowed Books
+        </h1>
+
+        {loading ? (
+          <p>
+            Loading...
+          </p>
+        ) : books.length ===
+          0 ? (
+          <p>
+            No borrowed
+            books
+          </p>
+        ) : (
+          <div className="grid gap-4">
+
+            {books.map(
+              (
+                borrow,
+              ) => (
+                <div
+                  key={
+                    borrow.id
+                  }
+                  className="bg-white p-5 rounded-xl shadow"
+                >
+
+                  <h2 className="text-2xl font-bold">
+                    {
+                      borrow.book
+                        ?.title
+                    }
+                  </h2>
+
+                  <p className="text-gray-600">
+                    Author:
+                    {' '}
+                    {
+                      borrow.book
+                        ?.author
+                    }
+                  </p>
+
+                  <p>
+                    Category:
+                    {' '}
+                    {
+                      borrow.book
+                        ?.category
+                    }
+                  </p>
+
+                  {user.role ===
+                    'ADMIN' && (
+                    <p>
+                      Student:
+                      {' '}
+                      {
+                        borrow.user
+                          ?.name
+                      }
+                    </p>
+                  )}
+
+                  <p>
+                    Status:
+                    {' '}
+                    <span className="font-semibold">
+                      {
+                        borrow.status
+                      }
+                    </span>
+                  </p>
+
+                  <p>
+                    Due Date:
+                    {' '}
+                    {new Date(
+                      borrow.dueDate,
+                    ).toLocaleDateString()}
+                  </p>
+
+                  {/* Fine */}
+                  {borrow.fine >
+                    0 && (
+                    <p className="text-red-600 font-bold mt-2">
+                      Fine: ₹
+                      {
+                        borrow.fine
+                      }
+                    </p>
+                  )}
+
+                  {user.role ===
+                    'STUDENT' &&
+                    borrow.status !==
+                      'RETURNED' && (
+                    <button
+                      onClick={() =>
+                        returnBook(
+                          borrow.id,
+                        )
+                      }
+                      className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                    >
+                      Return
+                      Book
+                    </button>
+                  )}
+
+                </div>
+              ),
+            )}
+
+          </div>
+        )}
+
+      </div>
+
+    </div>
+  )
+}
+
+export default BorrowedBooks
+</file>
+
+<file path="backend/src/books/books.service.ts">
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { PrismaService }
+from '../prisma/prisma.service';
+
+@Injectable()
+export class BooksService {
+  constructor(
+    private prisma: PrismaService,
+  ) {}
+
+  async create(
+    data: any,
+  ) {
+    return this.prisma.book.create({
+      data,
+    });
+  }
+
+  async findAll(
+    query: any,
+  ) {
+    const page =
+      parseInt(
+        query.page,
+      ) || 1;
+
+    const limit =
+      parseInt(
+        query.limit,
+      ) || 10;
+
+    const search =
+      query.search ||
+      '';
+
+    const category =
+      query.category ||
+      '';
+
+    const sortBy =
+      query.sortBy ||
+      'title';
+
+    const order =
+      query.order ||
+      'asc';
+
+    const skip =
+      (page - 1) *
+      limit;
+
+    const where: any =
+      {};
+
+    // Search
+    if (search) {
+      where.OR = [
+        {
+          title: {
+            contains:
+              search,
+          },
+        },
+
+        {
+          author: {
+            contains:
+              search,
+          },
+        },
+
+        {
+          category: {
+            contains:
+              search,
+          },
+        },
+      ];
+    }
+
+    // Category filter
+    if (category) {
+      where.category =
+        category;
+    }
+
+    const books =
+      await this.prisma.book.findMany({
+        where,
+
+        skip,
+
+        take:
+          limit,
+
+        orderBy: {
+          [sortBy]:
+            order,
+        },
+      });
+
+    const total =
+      await this.prisma.book.count({
+        where,
+      });
+
+    return {
+      data: books,
+      total,
+      page,
+      totalPages:
+        Math.ceil(
+          total /
+            limit,
+        ),
+    };
+  }
+
+  async findOne(
+    id: number,
+  ) {
+    const book =
+      await this.prisma.book.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!book) {
+      throw new NotFoundException(
+        'Book not found',
+      );
+    }
+
+    return book;
+  }
+
+  async update(
+    id: number,
+    data: any,
+  ) {
+    await this.findOne(
+      id,
+    );
+
+    return this.prisma.book.update({
+      where: {
+        id,
+      },
+
+      data,
+    });
+  }
+
+  async remove(
+    id: number,
+  ) {
+    await this.findOne(
+      id,
+    );
+
+    return this.prisma.book.delete({
+      where: {
+        id,
+      },
+    });
+  }
+}
+</file>
+
+<file path="backend/src/borrow/borrow.service.ts">
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+
+import { PrismaService }
+from '../prisma/prisma.service';
+
+@Injectable()
+export class BorrowService {
+  constructor(
+    private prisma: PrismaService,
+  ) {}
+
+  async borrowBook(
+    userId: number,
+    bookId: number,
+  ) {
+    const book =
+      await this.prisma.book.findUnique({
+        where: {
+          id: bookId,
+        },
+      });
+
+    if (!book) {
+      throw new NotFoundException(
+        'Book not found',
+      );
+    }
+
+    if (
+      book.availableCopies <= 0
+    ) {
+      throw new BadRequestException(
+        'No copies available',
+      );
+    }
+
+    // Prevent duplicate borrowing
+    const alreadyBorrowed =
+      await this.prisma.borrow.findFirst({
+        where: {
+          userId,
+          bookId,
+
+          status: {
+            in: [
+              'BORROWED',
+              'OVERDUE',
+            ],
+          },
+        },
+      });
+
+    if (
+      alreadyBorrowed
+    ) {
+      throw new BadRequestException(
+        'You already borrowed this book',
+      );
+    }
+
+    const dueDate =
+      new Date();
+
+    dueDate.setDate(
+      dueDate.getDate() + 7,
+    );
+
+    const borrow =
+      await this.prisma.borrow.create({
+        data: {
+          userId,
+          bookId,
+          dueDate,
+        },
+
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          book: true,
+        },
+      });
+
+    await this.prisma.book.update({
+      where: {
+        id: bookId,
+      },
+
+      data: {
+        availableCopies:
+          book.availableCopies -
+          1,
+      },
+    });
+
+    return borrow;
+  }
+
+  async getBorrowedBooks() {
+    const borrows =
+      await this.prisma.borrow.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          book: true,
+        },
+
+        orderBy: {
+          borrowDate:
+            'desc',
+        },
+      });
+
+    const today =
+      new Date();
+
+    return borrows.map(
+      (borrow) => {
+        const dueDate =
+          new Date(
+            borrow.dueDate,
+          );
+
+        let fine = 0;
+
+        if (
+          borrow.status !==
+            'RETURNED' &&
+          dueDate <
+            today
+        ) {
+          borrow.status =
+            'OVERDUE';
+
+          const diffTime =
+            today.getTime() -
+            dueDate.getTime();
+
+          const overdueDays =
+            Math.ceil(
+              diffTime /
+                (1000 *
+                  60 *
+                  60 *
+                  24),
+            );
+
+          fine =
+            overdueDays *
+            10;
+        }
+
+        return {
+          ...borrow,
+          fine,
+        };
+      },
+    );
+  }
+
+  async getMyBooks(
+    userId: number,
+  ) {
+    const borrows =
+      await this.prisma.borrow.findMany({
+        where: {
+          userId,
+
+          OR: [
+            {
+              status:
+                'BORROWED',
+            },
+            {
+              status:
+                'OVERDUE',
+            },
+          ],
+        },
+
+        include: {
+          book: true,
+        },
+
+        orderBy: {
+          borrowDate:
+            'desc',
+        },
+      });
+
+    const today =
+      new Date();
+
+    return borrows.map(
+      (borrow) => {
+        const dueDate =
+          new Date(
+            borrow.dueDate,
+          );
+
+        let fine = 0;
+
+        if (
+          dueDate <
+          today
+        ) {
+          borrow.status =
+            'OVERDUE';
+
+          const diffTime =
+            today.getTime() -
+            dueDate.getTime();
+
+          const overdueDays =
+            Math.ceil(
+              diffTime /
+                (1000 *
+                  60 *
+                  60 *
+                  24),
+            );
+
+          fine =
+            overdueDays *
+            10;
+        }
+
+        return {
+          ...borrow,
+          fine,
+        };
+      },
+    );
+  }
+
+  async returnBook(
+    borrowId: number,
+  ) {
+    const borrow =
+      await this.prisma.borrow.findUnique({
+        where: {
+          id: borrowId,
+        },
+
+        include: {
+          book: true,
+        },
+      });
+
+    if (!borrow) {
+      throw new NotFoundException(
+        'Borrow record not found',
+      );
+    }
+
+    const updatedBorrow =
+      await this.prisma.borrow.update({
+        where: {
+          id: borrowId,
+        },
+
+        data: {
+          status:
+            'RETURNED',
+
+          returnDate:
+            new Date(),
+        },
+      });
+
+    await this.prisma.book.update({
+      where: {
+        id: borrow.bookId,
+      },
+
+      data: {
+        availableCopies:
+          borrow.book
+            .availableCopies +
+          1,
+      },
+    });
+
+    return updatedBorrow;
+  }
+}
+</file>
+
+</files>

@@ -28,7 +28,7 @@ function Sidebar() {
     }
 
   return (
-    <div className="w-64 h-screen bg-gray-900 text-white p-5 fixed">
+    <div className="w-64 h-screen bg-[#365545] text-white p-5 fixed">
 
       <h1 className="text-2xl font-bold mb-10">
         Library
@@ -36,28 +36,65 @@ function Sidebar() {
 
       <div className="flex flex-col gap-4">
 
-        {user.role ===
+        {user?.role ===
           'ADMIN' && (
-          <Link
-            to="/dashboard"
-            className="hover:text-blue-400"
-          >
-            Dashboard
-          </Link>
+          <>
+            <Link
+              to="/dashboard"
+              className="
+              text-gray-100
+              hover:text-white
+              hover:bg-[#4F7C65]
+              rounded-lg
+              p-2
+              transition-all
+              "
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              to="/admin-books"
+              className="
+              text-gray-100
+              hover:text-white
+              hover:bg-[#4F7C65]
+              rounded-lg
+              p-2
+              transition-all
+              "
+            >
+              Manage Books
+            </Link>
+          </>
         )}
 
         <Link
           to="/books"
-          className="hover:text-blue-400"
+          className="
+          text-gray-100
+          hover:text-white
+          hover:bg-[#4F7C65]
+          rounded-lg
+          p-2
+          transition-all
+          "
         >
           Books
         </Link>
-        
+
         <Link
-        to="/borrowed-books"
-        className="hover:text-blue-400"
+          to="/borrowed-books"
+          className="
+          text-gray-100
+          hover:text-white
+          hover:bg-[#4F7C65]
+          rounded-lg
+          p-2
+          transition-all
+"
         >
-        Borrowed Books
+          Borrowed Books
         </Link>
 
         <button
@@ -70,6 +107,7 @@ function Sidebar() {
         </button>
 
       </div>
+
     </div>
   )
 }

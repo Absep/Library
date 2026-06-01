@@ -163,7 +163,7 @@ function BorrowedBooks() {
 
       <Sidebar />
 
-      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
+      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
 
         <h1 className="text-4xl font-bold mb-6">
           Borrowed Books
@@ -190,7 +190,7 @@ function BorrowedBooks() {
                   key={
                     borrow.id
                   }
-                  className="bg-white p-5 rounded-xl shadow"
+                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100"
                 >
 
                   <h2 className="text-2xl font-bold">
@@ -230,13 +230,18 @@ function BorrowedBooks() {
                     </p>
                   )}
 
-                  <p>
-                    Status:
-                    {' '}
-                    <span className="font-semibold">
-                      {
-                        borrow.status
-                      }
+                  <p className="mt-2">
+                    Status:{' '}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        borrow.status === 'OVERDUE'
+                          ? 'bg-red-100 text-red-700'
+                          : borrow.status === 'BORROWED'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-green-100 text-green-700'
+                      }`}
+                    >
+                      {borrow.status}
                     </span>
                   </p>
 
@@ -251,12 +256,11 @@ function BorrowedBooks() {
                   {/* Fine */}
                   {borrow.fine >
                     0 && (
-                    <p className="text-red-600 font-bold mt-2">
-                      Fine: ₹
-                      {
-                        borrow.fine
-                      }
-                    </p>
+                    <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-red-700 font-bold">
+                        Outstanding Fine: ₹{borrow.fine}
+                      </p>
+                    </div>
                   )}
 
                   {user.role ===

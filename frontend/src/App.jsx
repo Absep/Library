@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Books from './pages/Books'
 import BorrowedBooks from './pages/BorrowedBooks'
+import AdminBooks from './pages/AdminBooks'
 
 import ProtectedRoute
   from './components/ProtectedRoute'
@@ -24,6 +25,15 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/admin-books"
+        element={
+          <ProtectedRoute>
+            <AdminBooks />
           </ProtectedRoute>
         }
       />
