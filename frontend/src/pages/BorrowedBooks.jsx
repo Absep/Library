@@ -210,6 +210,15 @@ function BorrowedBooks() {
                   </p>
 
                   <p>
+                    Copy Number:
+                    {' '}
+                    <span className="font-semibold">
+                      {borrow.copyNumber}
+                    </span>
+                  </p>
+
+
+                  <p>
                     Category:
                     {' '}
                     {

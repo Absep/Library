@@ -119,6 +119,7 @@ frontend/src/App.jsx
 frontend/src/components/Navbar.jsx
 frontend/src/components/ProtectedRoute.jsx
 frontend/src/components/Sidebar.jsx
+frontend/src/hooks/useDebounce.js
 frontend/src/index.css
 frontend/src/main.jsx
 frontend/src/pages/AdminBooks.jsx
@@ -133,366 +134,6 @@ package.json
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path="frontend/src/pages/AdminBooks.jsx">
-import { useEffect, useState } from 'react'
-import api from '../services/api'
-import Sidebar from '../components/Sidebar'
-
-function AdminBooks() {
-  const [books, setBooks] = useState([])
-
-  const [form, setForm] = useState({
-    title: '',
-    author: '',
-    category: '',
-    availableCopies: 1,
-  })
-
-  const [editingId, setEditingId] =
-    useState(null)
-
-  useEffect(() => {
-    fetchBooks()
-  }, [])
-
-  const fetchBooks = async () => {
-    try {
-      const token =
-        localStorage.getItem(
-          'token',
-        )
-
-      const response =
-        await api.get(
-          '/books',
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          },
-        )
-
-      setBooks(
-        response.data.data ||
-          response.data,
-      )
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleChange = (
-    e,
-  ) => {
-    setForm({
-      ...form,
-      [e.target.name]:
-        e.target.value,
-    })
-  }
-
-  const handleSubmit =
-    async (e) => {
-      e.preventDefault()
-
-      try {
-        const token =
-          localStorage.getItem(
-            'token',
-          )
-
-        if (editingId) {
-          await api.patch(
-            `/books/${editingId}`,
-            form,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            },
-          )
-
-          alert(
-            'Book updated successfully',
-          )
-
-        } else {
-          await api.post(
-            '/books',
-            form,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            },
-          )
-
-          alert(
-            'Book added successfully',
-          )
-        }
-
-        setForm({
-          title: '',
-          author: '',
-          category: '',
-          availableCopies: 1,
-        })
-
-        setEditingId(
-          null,
-        )
-
-        fetchBooks()
-
-      } catch (error) {
-        console.log(error)
-
-        alert(
-          error.response?.data
-            ?.message ||
-            'Operation failed',
-        )
-      }
-    }
-
-  const handleEdit = (
-    book,
-  ) => {
-    setEditingId(
-      book.id,
-    )
-
-    setForm({
-      title:
-        book.title,
-      author:
-        book.author,
-      category:
-        book.category,
-      availableCopies:
-        book.availableCopies,
-    })
-  }
-
-  const handleDelete =
-    async (id) => {
-      const confirmDelete =
-        window.confirm(
-          'Delete this book?',
-        )
-
-      if (
-        !confirmDelete
-      ) {
-        return
-      }
-
-      try {
-        const token =
-          localStorage.getItem(
-            'token',
-          )
-
-        await api.delete(
-          `/books/${id}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          },
-        )
-
-        alert(
-          'Book deleted successfully',
-        )
-
-        fetchBooks()
-
-      } catch (error) {
-        console.log(error)
-
-        alert(
-          error.response?.data
-            ?.message ||
-            'Delete failed',
-        )
-      }
-    }
-
-  return (
-    <div className="flex">
-      <Sidebar />
-
-      <div className="ml-64 w-full min-h-screen bg-gray-100 p-10">
-
-        <h1 className="text-4xl font-bold mb-6">
-          Manage Books
-        </h1>
-
-        <form
-          onSubmit={
-            handleSubmit
-          }
-          className="bg-white p-6 rounded-xl shadow mb-8"
-        >
-          <div className="grid md:grid-cols-2 gap-4">
-
-            <input
-              type="text"
-              name="title"
-              placeholder="Book Title"
-              value={
-                form.title
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-            <input
-              type="text"
-              name="author"
-              placeholder="Author"
-              value={
-                form.author
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-            <input
-              type="text"
-              name="category"
-              placeholder="Category"
-              value={
-                form.category
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-            <input
-              type="number"
-              name="availableCopies"
-              placeholder="Available Copies"
-              value={
-                form.availableCopies
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-          </div>
-
-          <button
-            type="submit"
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
-          >
-            {editingId
-              ? 'Update Book'
-              : 'Add Book'}
-          </button>
-
-        </form>
-
-        <div className="grid gap-4">
-
-          {books.map(
-            (book) => (
-              <div
-                key={
-                  book.id
-                }
-                className="bg-white p-5 rounded-xl shadow"
-              >
-
-                <h2 className="text-2xl font-bold">
-                  {
-                    book.title
-                  }
-                </h2>
-
-                <p>
-                  Author:
-                  {' '}
-                  {
-                    book.author
-                  }
-                </p>
-
-                <p>
-                  Category:
-                  {' '}
-                  {
-                    book.category
-                  }
-                </p>
-
-                <p>
-                  Available Copies:
-                  {' '}
-                  {
-                    book.availableCopies
-                  }
-                </p>
-
-                <div className="flex gap-3 mt-4">
-
-                  <button
-                    onClick={() =>
-                      handleEdit(
-                        book,
-                      )
-                    }
-                    className="bg-yellow-500 text-white px-4 py-2 rounded"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      handleDelete(
-                        book.id,
-                      )
-                    }
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Delete
-                  </button>
-
-                </div>
-
-              </div>
-            ),
-          )}
-
-        </div>
-
-      </div>
-    </div>
-  )
-}
-
-export default AdminBooks
-</file>
 
 <file path=".gitignore">
 node_modules
@@ -615,91 +256,6 @@ export default tseslint.config(
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true
-  }
-}
-</file>
-
-<file path="backend/package.json">
-{
-  "name": "backend",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
-  "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
-  },
-  "dependencies": {
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^4.0.4",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/jwt": "^11.0.2",
-    "@nestjs/mapped-types": "*",
-    "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-express": "^11.0.1",
-    "@prisma/client": "^5.22.0",
-    "bcrypt": "^6.0.0",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
-    "prisma": "^5.22.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.18.0",
-    "@nestjs/cli": "^11.0.0",
-    "@nestjs/schematics": "^11.0.0",
-    "@nestjs/testing": "^11.0.1",
-    "@types/bcrypt": "^6.0.0",
-    "@types/express": "^5.0.0",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.0",
-    "@types/passport-jwt": "^4.0.1",
-    "@types/supertest": "^7.0.0",
-    "eslint": "^9.18.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.2",
-    "globals": "^17.0.0",
-    "jest": "^30.0.0",
-    "prettier": "^3.4.2",
-    "source-map-support": "^0.5.21",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.2.5",
-    "ts-loader": "^9.5.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
 </file>
@@ -1563,61 +1119,6 @@ describe('DashboardService', () => {
 });
 </file>
 
-<file path="backend/src/dashboard/dashboard.service.ts">
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-
-@Injectable()
-export class DashboardService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
-
-  async getDashboardStats() {
-    const totalBooks =
-      await this.prisma.book.count();
-
-    const availableBooks =
-      await this.prisma.book.aggregate({
-        _sum: {
-          availableCopies: true,
-        },
-      });
-
-    const borrowedBooks =
-      await this.prisma.borrow.count({
-        where: {
-          status: 'BORROWED',
-        },
-      });
-
-    const overdueBooks =
-      await this.prisma.borrow.count({
-        where: {
-          status: 'OVERDUE',
-        },
-      });
-
-    const students =
-      await this.prisma.user.count({
-        where: {
-          role: 'STUDENT',
-        },
-      });
-
-    return {
-      totalBooks,
-      availableBooks:
-        availableBooks._sum
-          .availableCopies || 0,
-      borrowedBooks,
-      overdueBooks,
-      students,
-    };
-  }
-}
-</file>
-
 <file path="backend/src/dashboard/dto/create-dashboard.dto.ts">
 export class CreateDashboardDto {}
 </file>
@@ -1921,40 +1422,6 @@ export default defineConfig([
 </html>
 </file>
 
-<file path="frontend/package.json">
-{
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "axios": "^1.16.1",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-router-dom": "^7.16.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@tailwindcss/vite": "^4.3.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^10.3.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.6.0",
-    "tailwindcss": "^4.3.0",
-    "vite": "^8.0.12"
-  }
-}
-</file>
-
 <file path="frontend/public/favicon.svg">
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="46" fill="none" viewBox="0 0 48 46"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z" style="fill:#863bff;fill:color(display-p3 .5252 .23 1);fill-opacity:1"/><mask id="a" width="48" height="46" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M25.842 44.938c-.664.844-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.183c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.498 0-3.579-1.842-3.579H1.133c-.92 0-1.456-1.04-.92-1.787L9.91.473c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.578 1.842 3.578h11.377c.943 0 1.473 1.088.89 1.832L25.843 44.94z" style="fill:#000;fill-opacity:1"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#ede6ff" rx="5.508" ry="14.704" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -4.47 31.516)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#ede6ff" rx="10.399" ry="29.851" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -39.328 7.883)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#7e14ff" rx="5.508" ry="30.487" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -25.913 -14.639)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -32.644 -3.334)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -34.34 30.47)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#ede6ff" rx="14.072" ry="22.078" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="rotate(93.35 24.506 48.493)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx=".387" cy="8.972" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(39.51 .387 8.972)"/></g><g filter="url(#k)"><ellipse cx="47.523" cy="-6.092" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 47.523 -6.092)"/></g><g filter="url(#l)"><ellipse cx="41.412" cy="6.333" fill="#47bfff" rx="5.971" ry="9.665" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 41.412 6.333)"/></g><g filter="url(#m)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#n)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#o)"><ellipse cx="35.651" cy="29.907" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 35.651 29.907)"/></g><g filter="url(#p)"><ellipse cx="38.418" cy="32.4" fill="#47bfff" rx="5.971" ry="15.297" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 38.418 32.4)"/></g></g><defs><filter id="b" width="60.045" height="41.654" x="-19.77" y="16.149" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-54.613" y="-7.533" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-49.64" y="2.03" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-45.045" y="20.029" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-43.513" y="21.178" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="15.756" y="-17.901" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-27.636" y="-22.853" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="20.116" y="-38.415" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="24.641" y="-11.323" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="8.244" y="-2.416" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="18.713" y="10.588" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter></defs></svg>
 </file>
@@ -2005,71 +1472,6 @@ The React Compiler is not enabled on this template because of its impact on dev 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 </file>
 
-<file path="frontend/src/App.jsx">
-import {
-  Routes,
-  Route,
-} from 'react-router-dom'
-
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Books from './pages/Books'
-import BorrowedBooks from './pages/BorrowedBooks'
-import AdminBooks from './pages/AdminBooks'
-
-import ProtectedRoute
-  from './components/ProtectedRoute'
-
-function App() {
-  return (
-    <Routes>
-      <Route
-        path="/"
-        element={<Login />}
-      />
-
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/admin-books"
-        element={
-          <ProtectedRoute>
-            <AdminBooks />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/borrowed-books"
-        element={
-          <ProtectedRoute>
-            <BorrowedBooks />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/books"
-        element={
-          <ProtectedRoute>
-            <Books />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
-  )
-}
-
-export default App
-</file>
-
 <file path="frontend/src/components/Navbar.jsx">
 
 </file>
@@ -2093,93 +1495,39 @@ function ProtectedRoute({
 export default ProtectedRoute
 </file>
 
-<file path="frontend/src/components/Sidebar.jsx">
+<file path="frontend/src/hooks/useDebounce.js">
 import {
-  Link,
-  useNavigate,
-} from 'react-router-dom'
+  useEffect,
+  useState,
+} from 'react'
 
-function Sidebar() {
-  const navigate =
-    useNavigate()
+function useDebounce(
+  value,
+  delay,
+) {
+  const [
+    debouncedValue,
+    setDebouncedValue,
+  ] = useState(value)
 
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        'user',
-      ),
-    )
+  useEffect(() => {
+    const timer =
+      setTimeout(() => {
+        setDebouncedValue(
+          value,
+        )
+      }, delay)
 
-  const handleLogout =
-    () => {
-      localStorage.removeItem(
-        'token',
+    return () =>
+      clearTimeout(
+        timer,
       )
+  }, [value, delay])
 
-      localStorage.removeItem(
-        'user',
-      )
-
-      navigate('/')
-    }
-
-  return (
-    <div className="w-64 h-screen bg-gray-900 text-white p-5 fixed">
-
-      <h1 className="text-2xl font-bold mb-10">
-        Library
-      </h1>
-
-      <div className="flex flex-col gap-4">
-
-        {user.role ===
-          'ADMIN' && (
-          <>
-            <Link
-              to="/dashboard"
-              className="hover:text-blue-400"
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              to="/admin-books"
-              className="hover:text-blue-400"
-            >
-              Manage Books
-            </Link>
-          </>
-        )}
-
-        <Link
-          to="/books"
-          className="hover:text-blue-400"
-        >
-          Books
-        </Link>
-
-        <Link
-          to="/borrowed-books"
-          className="hover:text-blue-400"
-        >
-          Borrowed Books
-        </Link>
-
-        <button
-          onClick={
-            handleLogout
-          }
-          className="bg-red-500 p-2 rounded mt-10"
-        >
-          Logout
-        </button>
-
-      </div>
-    </div>
-  )
+  return debouncedValue
 }
 
-export default Sidebar
+export default useDebounce
 </file>
 
 <file path="frontend/src/index.css">
@@ -2191,91 +1539,196 @@ body {
 }
 </file>
 
-<file path="frontend/src/main.jsx">
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import {
-  BrowserRouter,
-} from 'react-router-dom'
+<file path="frontend/src/pages/AdminBooks.jsx">
+import { useEffect, useState } from 'react'
+import api from '../services/api'
+import Sidebar from '../components/Sidebar'
 
-import App from './App'
-import './index.css'
-
-ReactDOM.createRoot(
-  document.getElementById('root')
-).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
-)
-</file>
-
-<file path="frontend/src/pages/Books.jsx">
-import {
-  useEffect,
-  useState,
-} from 'react'
-
-import api
-from '../services/api'
-
-import Sidebar
-from '../components/Sidebar'
-
-function Books() {
-  const [books, setBooks] =
-    useState([])
-
+function AdminBooks() {
+  const [books, setBooks] = useState([])
   const [search, setSearch] =
     useState('')
 
-  const [loading, setLoading] =
-    useState(true)
+  const [form, setForm] = useState({
+    title: '',
+    author: '',
+    category: '',
+    availableCopies: 1,
+  })
 
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        'user',
-      ),
-    )
+  const [editingId, setEditingId] =
+    useState(null)
 
   useEffect(() => {
     fetchBooks()
-  }, [])
+  }, [search])
 
-  const fetchBooks =
-    async () => {
-      try {
-        const response =
-          await api.get(
-            `/books?search=${search}`,
-          )
-
-        setBooks(
-          response.data.data,
+  const fetchBooks = async () => {
+    try {
+      const token =
+        localStorage.getItem(
+          'token',
         )
 
-      } catch (error) {
-        console.log(error)
+      const response =
+        await api.get(
+          `/books?search=${search}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
 
-      } finally {
-        setLoading(false)
-      }
+      setBooks(
+        response.data.data ||
+          response.data,
+      )
+
+    } catch (error) {
+      console.log(error)
     }
+  }
 
-  const handleBorrow =
-    async (bookId) => {
+  const handleChange = (
+    e,
+  ) => {
+    setForm({
+      ...form,
+      [e.target.name]:
+        e.target.value,
+    })
+  }
+
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault()
+
       try {
         const token =
           localStorage.getItem(
             'token',
           )
 
-        await api.post(
-          `/borrow/${user.id}/${bookId}`,
-          {},
+        const bookData = {
+          ...form,
+
+          quantity:
+            Number(
+              form.availableCopies,
+            ),
+
+          availableCopies:
+            Number(
+              form.availableCopies,
+            ),
+
+          isbn:
+            editingId
+              ? undefined
+              : `BOOK-${Date.now()}`,
+        }
+
+        if (editingId) {
+          delete bookData.isbn
+
+          await api.patch(
+            `/books/${editingId}`,
+            bookData,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+          alert(
+            'Book updated successfully',
+          )
+
+        } else {
+          await api.post(
+            '/books',
+            bookData,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+          alert(
+            'Book added successfully',
+          )
+        }
+
+        setForm({
+          title: '',
+          author: '',
+          category: '',
+          availableCopies: 1,
+        })
+
+        setEditingId(
+          null,
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        console.log(error)
+
+        alert(
+          error.response?.data
+            ?.message ||
+            'Operation failed',
+        )
+      }
+    }
+
+  const handleEdit = (
+    book,
+  ) => {
+    setEditingId(
+      book.id,
+    )
+
+    setForm({
+      title:
+        book.title,
+      author:
+        book.author,
+      category:
+        book.category,
+      availableCopies:
+        book.availableCopies,
+    })
+  }
+
+  const handleDelete =
+    async (id) => {
+      const confirmDelete =
+        window.confirm(
+          'Delete this book?',
+        )
+
+      if (
+        !confirmDelete
+      ) {
+        return
+      }
+
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        await api.delete(
+          `/books/${id}`,
           {
             headers: {
               Authorization:
@@ -2285,242 +1738,205 @@ function Books() {
         )
 
         alert(
-          'Book Borrowed Successfully',
+          'Book deleted successfully',
         )
 
         fetchBooks()
 
       } catch (error) {
+        console.log(error)
+
         alert(
           error.response?.data
             ?.message ||
-          'Could not borrow book',
+            'Delete failed',
         )
       }
     }
 
   return (
     <div className="flex">
-
       <Sidebar />
 
-      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
+      <div className="ml-64 w-full min-h-screen bg-[#F8F7F4] p-10">
 
         <h1 className="text-4xl font-bold mb-6">
-          Books
+          Manage Books
         </h1>
 
-        <div className="flex gap-3 mb-8">
+        <input
+          type="text"
+          placeholder="Search by title, author or category..."
+          value={search}
+          onChange={(e) =>
+            setSearch(
+              e.target.value,
+            )
+          }
+          className="border p-3 rounded w-full mb-6"
+        />
 
-          <input
-            type="text"
-            placeholder="Search books..."
-            className="border p-3 rounded w-full"
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value,
-              )
-            }
-          />
+        <form
+          onSubmit={
+            handleSubmit
+          }
+          className="bg-white p-6 rounded-xl shadow mb-8"
+        >
+          <div className="grid md:grid-cols-2 gap-4">
+
+            <input
+              type="text"
+              name="title"
+              placeholder="Book Title"
+              value={
+                form.title
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              name="author"
+              placeholder="Author"
+              value={
+                form.author
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              name="category"
+              placeholder="Category"
+              value={
+                form.category
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="number"
+              name="availableCopies"
+              placeholder="Number of Copies"
+              value={
+                form.availableCopies
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+          </div>
 
           <button
-            onClick={
-              fetchBooks
-            }
-            className="bg-blue-500 text-white px-6 rounded"
+            type="submit"
+            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
           >
-            Search
+            {editingId
+              ? 'Update Book'
+              : 'Add Book'}
           </button>
 
-        </div>
+        </form>
 
-        {loading ? (
-          <p>
-            Loading...
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-4">
 
-            {books.map(
-              (book) => (
+          {books.length ===
+          0 ? (
+            <div className="bg-white p-6 rounded-xl shadow">
+              No books found
+            </div>
+          ) : (
+            books.map(
+              (
+                book,
+              ) => (
                 <div
-                  key={book.id}
-                  className="bg-white rounded-xl shadow p-5"
+                  key={
+                    book.id
+                  }
+                  className="bg-white p-5 rounded-xl shadow"
                 >
                   <h2 className="text-2xl font-bold">
-                    {book.title}
+                    {
+                      book.title
+                    }
                   </h2>
 
-                  <p className="text-gray-600">
+                  <p>
+                    Author:{' '}
                     {
                       book.author
                     }
                   </p>
 
-                  <p className="mt-2">
-                    Category:
-                    {' '}
+                  <p>
+                    Category:{' '}
                     {
                       book.category
                     }
                   </p>
 
                   <p>
-                    Available:
-                    {' '}
+                    Available
+                    Copies:{' '}
                     {
                       book.availableCopies
                     }
                   </p>
 
-                  {user.role ===
-                    'STUDENT' && (
+                  <div className="flex gap-3 mt-4">
+
                     <button
                       onClick={() =>
-                        handleBorrow(
+                        handleEdit(
+                          book,
+                        )
+                      }
+                      className="bg-yellow-500 text-white px-4 py-2 rounded"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleDelete(
                           book.id,
                         )
                       }
-                      className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+                      className="bg-red-500 text-white px-4 py-2 rounded"
                     >
-                      Borrow
+                      Delete
                     </button>
-                  )}
 
+                  </div>
                 </div>
               ),
-            )}
+            )
+          )}
 
-          </div>
-        )}
+        </div>
 
       </div>
     </div>
   )
 }
 
-export default Books
-</file>
-
-<file path="frontend/src/pages/Dashboard.jsx">
-import {
-  useEffect,
-  useState,
-} from 'react'
-
-import api
-from '../services/api'
-
-import Sidebar
-from '../components/Sidebar'
-
-function Dashboard() {
-  const [stats, setStats] =
-    useState(null)
-
-  useEffect(() => {
-    fetchDashboard()
-  }, [])
-
-  const fetchDashboard =
-    async () => {
-      try {
-        const token =
-          localStorage.getItem(
-            'token',
-          )
-
-        const response =
-          await api.get(
-            '/dashboard',
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            },
-          )
-
-        setStats(
-          response.data,
-        )
-
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-  return (
-    <div className="flex">
-
-      <Sidebar />
-
-      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
-
-        <h1 className="text-4xl font-bold mb-8">
-          Admin Dashboard
-        </h1>
-
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h2 className="text-gray-500">
-                Total Books
-              </h2>
-
-              <p className="text-3xl font-bold">
-                {
-                  stats.totalBooks
-                }
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h2 className="text-gray-500">
-                Borrowed Books
-              </h2>
-
-              <p className="text-3xl font-bold">
-                {
-                  stats.borrowedBooks
-                }
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h2 className="text-gray-500">
-                Overdue Books
-              </h2>
-
-              <p className="text-3xl font-bold">
-                {
-                  stats.overdueBooks
-                }
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h2 className="text-gray-500">
-                Students
-              </h2>
-
-              <p className="text-3xl font-bold">
-                {
-                  stats.students
-                }
-              </p>
-            </div>
-
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-export default Dashboard
+export default AdminBooks
 </file>
 
 <file path="frontend/src/pages/Login.jsx">
@@ -2660,18 +2076,88 @@ export default defineConfig({
 })
 </file>
 
-<file path="package.json">
+<file path="backend/package.json">
 {
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
+    "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
-    "@prisma/client": "^7.8.0",
+    "@nestjs/platform-express": "^11.0.1",
+    "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.15.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "prisma": "^7.8.0"
+    "prisma": "^5.22.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^17.0.0",
+    "jest": "^30.0.0",
+    "prettier": "^3.4.2",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }
 </file>
@@ -2710,6 +2196,952 @@ import { UsersModule } from '../users/users.module';
   ],
 })
 export class AuthModule {}
+</file>
+
+<file path="backend/src/borrow/borrow.controller.ts">
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
+
+import { BorrowService }
+from './borrow.service';
+
+import { JwtAuthGuard }
+from '../auth/jwt-auth.guard';
+
+import { RolesGuard }
+from '../auth/roles.guard';
+
+import { Roles }
+from '../auth/roles.decorator';
+
+@Controller('borrow')
+export class BorrowController {
+  constructor(
+    private borrowService:
+      BorrowService,
+  ) {}
+
+  @Post(
+    ':userId/:bookId',
+  )
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('STUDENT')
+  borrowBook(
+    @Param('userId')
+    userId: string,
+
+    @Param('bookId')
+    bookId: string,
+  ) {
+    return this.borrowService.borrowBook(
+      +userId,
+      +bookId,
+    );
+  }
+
+  @Get()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  getBorrowedBooks() {
+    return this.borrowService.getBorrowedBooks();
+  }
+
+  @Get('my/:userId')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('STUDENT')
+  getMyBooks(
+    @Param('userId')
+    userId: string,
+  ) {
+    return this.borrowService.getMyBooks(
+      +userId,
+    );
+  }
+
+  @Patch(
+    'return/:id',
+  )
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('STUDENT')
+  returnBook(
+    @Param('id')
+    id: string,
+  ) {
+    return this.borrowService.returnBook(
+      +id,
+    );
+  }
+}
+</file>
+
+<file path="backend/src/dashboard/dashboard.service.ts">
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class DashboardService {
+  constructor(
+    private prisma: PrismaService,
+  ) {}
+
+  async getDashboardStats() {
+  const totalBooks =
+    await this.prisma.book.count();
+
+  const availableBooks =
+    await this.prisma.book.aggregate({
+      _sum: {
+        availableCopies: true,
+      },
+    });
+
+  const borrowedBooks =
+    await this.prisma.borrow.count({
+      where: {
+        status: 'BORROWED',
+         dueDate: {
+        gte: new Date(),
+      },
+      },
+    });
+
+  const overdueBooks =
+  await this.prisma.borrow.count({
+    where: {
+      status: {
+        not: 'RETURNED',
+      },
+
+      dueDate: {
+        lt: new Date(),
+      },
+    },
+  });
+
+  const students =
+    await this.prisma.user.count({
+      where: {
+        role: 'STUDENT',
+      },
+    });
+
+  const recentBorrows =
+    await this.prisma.borrow.findMany({
+      take: 5,
+
+      orderBy: {
+        borrowDate: 'desc',
+      },
+
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+
+        book: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+  return {
+    totalBooks,
+
+    availableBooks:
+      availableBooks._sum
+        .availableCopies || 0,
+
+    borrowedBooks,
+
+    overdueBooks,
+
+    students,
+
+    recentBorrows,
+  };
+}
+}
+</file>
+
+<file path="backend/src/main.ts">
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app =
+    await NestFactory.create(
+      AppModule,
+    );
+
+  app.enableCors();
+
+  await app.listen(3000);
+}
+bootstrap();
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "axios": "^1.16.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.16.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "tailwindcss": "^4.3.0",
+    "vite": "^8.0.12"
+  }
+}
+</file>
+
+<file path="frontend/src/App.jsx">
+import {
+  Routes,
+  Route,
+} from 'react-router-dom'
+
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Books from './pages/Books'
+import BorrowedBooks from './pages/BorrowedBooks'
+import AdminBooks from './pages/AdminBooks'
+
+import ProtectedRoute
+  from './components/ProtectedRoute'
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<Login />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/admin-books"
+        element={
+          <ProtectedRoute>
+            <AdminBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/borrowed-books"
+        element={
+          <ProtectedRoute>
+            <BorrowedBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/books"
+        element={
+          <ProtectedRoute>
+            <Books />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  )
+}
+
+export default App
+</file>
+
+<file path="frontend/src/components/Sidebar.jsx">
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom'
+
+function Sidebar() {
+  const navigate =
+    useNavigate()
+
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        'user',
+      ),
+    )
+
+  const handleLogout =
+    () => {
+      localStorage.removeItem(
+        'token',
+      )
+
+      localStorage.removeItem(
+        'user',
+      )
+
+      navigate('/')
+    }
+
+  return (
+    <div className="w-64 h-screen bg-[#365545] text-white p-5 fixed">
+
+      <h1 className="text-2xl font-bold mb-10">
+        Library
+      </h1>
+
+      <div className="flex flex-col gap-4">
+
+        {user?.role ===
+          'ADMIN' && (
+          <>
+            <Link
+              to="/dashboard"
+              className="
+              text-gray-100
+              hover:text-white
+              hover:bg-[#4F7C65]
+              rounded-lg
+              p-2
+              transition-all
+              "
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              to="/admin-books"
+              className="
+              text-gray-100
+              hover:text-white
+              hover:bg-[#4F7C65]
+              rounded-lg
+              p-2
+              transition-all
+              "
+            >
+              Manage Books
+            </Link>
+          </>
+        )}
+
+        <Link
+          to="/books"
+          className="
+          text-gray-100
+          hover:text-white
+          hover:bg-[#4F7C65]
+          rounded-lg
+          p-2
+          transition-all
+          "
+        >
+          Books
+        </Link>
+
+        <Link
+          to="/borrowed-books"
+          className="
+          text-gray-100
+          hover:text-white
+          hover:bg-[#4F7C65]
+          rounded-lg
+          p-2
+          transition-all
+"
+        >
+          Borrowed Books
+        </Link>
+
+        <button
+          onClick={
+            handleLogout
+          }
+          className="bg-red-500 p-2 rounded mt-10"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </div>
+  )
+}
+
+export default Sidebar
+</file>
+
+<file path="frontend/src/main.jsx">
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import '@fontsource/inter'
+import {
+  BrowserRouter,
+} from 'react-router-dom'
+
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(
+  document.getElementById('root')
+).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+)
+</file>
+
+<file path="frontend/src/pages/Books.jsx">
+import {
+  useEffect,
+  useState,
+} from 'react'
+
+import api
+from '../services/api'
+
+import Sidebar
+from '../components/Sidebar'
+
+import useDebounce
+from '../hooks/useDebounce'
+
+function Books() {
+  const [books, setBooks] =
+    useState([])
+
+  const [search, setSearch] =
+    useState('')
+
+  const [page, setPage] =
+    useState(1)
+
+  const [
+    totalPages,
+    setTotalPages,
+  ] = useState(1)
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const debouncedSearch =
+    useDebounce(
+      search,
+      500,
+    )
+
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        'user',
+      ),
+    )
+
+  useEffect(() => {
+    fetchBooks()
+  }, [
+    page,
+    debouncedSearch,
+  ])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  const fetchBooks =
+    async () => {
+      try {
+        setLoading(true)
+
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        const response =
+          await api.get(
+            `/books?page=${page}&limit=5&search=${debouncedSearch}`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+        setBooks(
+          response.data.data,
+        )
+
+        setTotalPages(
+          response.data.totalPages,
+        )
+
+      } catch (error) {
+        console.log(error)
+
+      } finally {
+        setLoading(false)
+      }
+    }
+
+  const handleBorrow =
+    async (bookId) => {
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        await api.post(
+          `/borrow/${user.id}/${bookId}`,
+          {},
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+        alert(
+          'Book Borrowed Successfully',
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        alert(
+          error.response?.data
+            ?.message ||
+          'Could not borrow book',
+        )
+      }
+    }
+
+  return (
+    <div className="flex">
+
+      <Sidebar />
+
+      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+
+        <h1 className="text-4xl font-bold mb-6">
+          Books
+        </h1>
+
+        <div className="mb-8">
+
+          <input
+            type="text"
+            placeholder="Search by title, author or category..."
+            className="
+            w-full
+            p-4
+            rounded-xl
+            bg-white
+            border
+            border-[#DDE6E0]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#4F7C65]
+            "
+            value={search}
+            onChange={(e) =>
+              setSearch(
+                e.target.value,
+              )
+            }
+          />
+
+        </div>
+
+        {loading ? (
+          <p>
+            Loading...
+          </p>
+        ) : books.length === 0 ? (
+          <p>
+            No books found
+          </p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {books.map(
+                (book) => (
+                  <div
+                    key={book.id}
+                    className="bg-white
+                    rounded-2xl
+                    shadow-sm
+                    border
+                    border-[#E8F0EB]
+                    hover:shadow-lg
+                    transition-all
+                    duration-300 p-5"
+                  >
+
+                    <h2 className="text-2xl font-bold">
+                      {
+                        book.title
+                      }
+                    </h2>
+
+                    <p className="text-gray-600">
+                      {
+                        book.author
+                      }
+                    </p>
+
+                    <p className="mt-2">
+                      Category:{' '}
+                      {
+                        book.category
+                      }
+                    </p>
+
+                    <p>
+                      Available:{' '}
+                      {
+                        book.availableCopies
+                      }
+                    </p>
+
+                    {user.role ===
+                      'STUDENT' && (
+                      <button
+                        onClick={() =>
+                          handleBorrow(
+                            book.id,
+                          )
+                        }
+                        className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+                      >
+                        Borrow
+                      </button>
+                    )}
+
+                  </div>
+                ),
+              )}
+
+            </div>
+
+            <div className="flex justify-center items-center gap-4 mt-8">
+
+              <button
+                disabled={
+                  page === 1
+                }
+                onClick={() =>
+                  setPage(
+                    page - 1,
+                  )
+                }
+                className="px-4 py-2 bg-[#4F7C65]
+hover:bg-[#365545] text-white rounded disabled:bg-gray-300"
+              >
+                Previous
+              </button>
+
+              <span className="font-semibold">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                disabled={
+                  page === totalPages
+                }
+                onClick={() =>
+                  setPage(
+                    page + 1,
+                  )
+                }
+                className="px-4 py-2 bg-[#4F7C65]
+hover:bg-[#365545] text-white rounded disabled:bg-gray-300"
+              >
+                Next
+              </button>
+
+            </div>
+          </>
+        )}
+
+      </div>
+
+    </div>
+  )
+}
+
+export default Books
+</file>
+
+<file path="frontend/src/pages/Dashboard.jsx">
+import {
+  useEffect,
+  useState,
+} from 'react'
+
+import api
+from '../services/api'
+
+import Sidebar
+from '../components/Sidebar'
+
+function Dashboard() {
+  const [stats, setStats] =
+    useState(null)
+
+  useEffect(() => {
+    fetchDashboard()
+  }, [])
+
+  const fetchDashboard =
+    async () => {
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        const response =
+          await api.get(
+            '/dashboard',
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+        setStats(
+          response.data,
+        )
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+  return (
+    <div className="flex">
+
+      <Sidebar />
+
+      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+
+        <h1 className="text-5xl font-bold text-[#365545] mb-2">
+          Admin Dashboard
+        </h1>
+
+        <p className="text-gray-500 mb-8">
+          Overview of library activity
+        </p>
+
+        {stats && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E8F0EB] hover:shadow-lg transition-all">
+                <h2 className="text-gray-500">
+                  Total Books
+                </h2>
+
+                <p className="text-4xl font-bold text-[#365545]">
+                  {stats.totalBooks}
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E8F0EB] hover:shadow-lg transition-all">
+                <h2 className="text-gray-500">
+                  Available Books
+                </h2>
+
+                <p className="text-4xl font-bold text-green-600">
+                  {stats.availableBooks}
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E8F0EB] hover:shadow-lg transition-all">
+                <h2 className="text-gray-500">
+                  Borrowed Books
+                </h2>
+
+                <p className="text-4xl font-bold text-yellow-600">
+                  {stats.borrowedBooks}
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E8F0EB] hover:shadow-lg transition-all">
+                <h2 className="text-gray-500">
+                  Overdue Books
+                </h2>
+
+                <p className="text-4xl font-bold text-red-600">
+                  {stats.overdueBooks}
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#E8F0EB] hover:shadow-lg transition-all">
+                <h2 className="text-gray-500">
+                  Students
+                </h2>
+
+                <p className="text-4xl font-bold text-blue-600">
+                  {stats.students}
+                </p>
+              </div>
+
+            </div>
+
+            <div className="mt-10 bg-white rounded-2xl shadow-sm border border-[#E8F0EB] p-6">
+
+              <h2 className="text-2xl font-bold text-[#365545] mb-6">
+                Recent Activity
+              </h2>
+
+              {stats.recentBorrows?.length > 0 ? (
+
+                <div className="space-y-4">
+
+                  {stats.recentBorrows.map(
+                    (item) => (
+
+                      <div
+                        key={item.id}
+                        className="flex justify-between items-center border-b border-gray-100 pb-4"
+                      >
+
+                        <div>
+
+                          <p className="font-medium text-gray-800">
+                            <span className="font-bold text-[#365545]">
+                              {item.user.name}
+                            </span>
+                            {' '}
+                            borrowed
+                            {' '}
+                            <span className="font-semibold">
+                              {item.book.title}
+                            </span>
+                          </p>
+
+                          <p className="text-sm text-gray-500">
+                            {new Date(
+                              item.borrowDate,
+                            ).toLocaleString()}
+                          </p>
+
+                        </div>
+
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            item.status === 'OVERDUE'
+                              ? 'bg-red-100 text-red-700'
+                              : item.status === 'RETURNED'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+
+                      </div>
+
+                    ),
+                  )}
+
+                </div>
+
+              ) : (
+
+                <p className="text-gray-500">
+                  No recent activity
+                </p>
+
+              )}
+
+            </div>
+          </>
+        )}
+
+      </div>
+
+    </div>
+  )
+}
+
+export default Dashboard
+</file>
+
+<file path="package.json">
+{
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@prisma/client": "^7.8.0",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "prisma": "^7.8.0"
+  }
+}
 </file>
 
 <file path="backend/src/books/books.controller.ts">
@@ -2807,115 +3239,331 @@ export class BooksController {
 }
 </file>
 
-<file path="backend/src/borrow/borrow.controller.ts">
+<file path="backend/src/borrow/borrow.service.ts">
 import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Patch,
-  UseGuards,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
-import { BorrowService }
-from './borrow.service';
+import { PrismaService }
+from '../prisma/prisma.service';
 
-import { JwtAuthGuard }
-from '../auth/jwt-auth.guard';
-
-import { RolesGuard }
-from '../auth/roles.guard';
-
-import { Roles }
-from '../auth/roles.decorator';
-
-@Controller('borrow')
-export class BorrowController {
+@Injectable()
+export class BorrowService {
   constructor(
-    private borrowService:
-      BorrowService,
+    private prisma: PrismaService,
   ) {}
 
-  @Post(
-    ':userId/:bookId',
-  )
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('STUDENT')
-  borrowBook(
-    @Param('userId')
-    userId: string,
-
-    @Param('bookId')
-    bookId: string,
+  async borrowBook(
+    userId: number,
+    bookId: number,
   ) {
-    return this.borrowService.borrowBook(
-      +userId,
-      +bookId,
+    const book =
+      await this.prisma.book.findUnique({
+        where: {
+          id: bookId,
+        },
+      });
+
+    if (!book) {
+      throw new NotFoundException(
+        'Book not found',
+      );
+    }
+
+    if (
+      book.availableCopies <= 0
+    ) {
+      throw new BadRequestException(
+        'No copies available',
+      );
+    }
+
+    // Prevent duplicate borrowing
+    const alreadyBorrowed =
+      await this.prisma.borrow.findFirst({
+        where: {
+          userId,
+          bookId,
+
+          status: {
+            in: [
+              'BORROWED',
+              'OVERDUE',
+            ],
+          },
+        },
+      });
+
+    if (
+      alreadyBorrowed
+    ) {
+      throw new BadRequestException(
+        'You already borrowed this book',
+      );
+    }
+
+    const dueDate =
+      new Date();
+
+    dueDate.setDate(
+      dueDate.getDate() + 7,
+    );
+
+    const borrow =
+      await this.prisma.borrow.create({
+        data: {
+          userId,
+          bookId,
+          dueDate,
+        },
+
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          book: true,
+        },
+      });
+
+    await this.prisma.book.update({
+      where: {
+        id: bookId,
+      },
+
+      data: {
+        availableCopies:
+          book.availableCopies -
+          1,
+      },
+    });
+
+    return borrow;
+  }
+
+    async getBorrowedBooks() {
+    const borrows =
+      await this.prisma.borrow.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          book: true,
+        },
+
+        orderBy: {
+          borrowDate: 'desc',
+        },
+      });
+
+    const today =
+      new Date();
+
+    for (const borrow of borrows) {
+      const dueDate =
+        new Date(
+          borrow.dueDate,
+        );
+
+      if (
+        borrow.status !==
+          'RETURNED' &&
+        dueDate < today
+      ) {
+        await this.prisma.borrow.update({
+          where: {
+            id: borrow.id,
+          },
+
+          data: {
+            status:
+              'OVERDUE',
+          },
+        });
+
+        borrow.status =
+          'OVERDUE';
+      }
+    }
+
+    return borrows.map(
+      (borrow) => {
+        let fine = 0;
+
+        const dueDate =
+          new Date(
+            borrow.dueDate,
+          );
+
+        if (
+          borrow.status ===
+          'OVERDUE'
+        ) {
+          const daysLate =
+            Math.ceil(
+              (
+                today.getTime() -
+                dueDate.getTime()
+              ) /
+                (
+                  1000 *
+                  60 *
+                  60 *
+                  24
+                ),
+            );
+
+          fine =
+            daysLate * 10;
+        }
+
+        return {
+          ...borrow,
+          fine,
+        };
+      },
     );
   }
 
-  @Get()
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('ADMIN')
-  getBorrowedBooks() {
-    return this.borrowService.getBorrowedBooks();
-  }
-
-  @Get('my/:userId')
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('STUDENT')
-  getMyBooks(
-    @Param('userId')
-    userId: string,
+  async getMyBooks(
+    userId: number,
   ) {
-    return this.borrowService.getMyBooks(
-      +userId,
+    const borrows =
+      await this.prisma.borrow.findMany({
+        where: {
+          userId,
+
+          OR: [
+            {
+              status:
+                'BORROWED',
+            },
+            {
+              status:
+                'OVERDUE',
+            },
+          ],
+        },
+
+        include: {
+          book: true,
+        },
+
+        orderBy: {
+          borrowDate:
+            'desc',
+        },
+      });
+
+    const today =
+      new Date();
+
+    return borrows.map(
+      (borrow) => {
+        const dueDate =
+          new Date(
+            borrow.dueDate,
+          );
+
+        let fine = 0;
+
+        if (
+          dueDate <
+          today
+        ) {
+          borrow.status =
+            'OVERDUE';
+
+          const diffTime =
+            today.getTime() -
+            dueDate.getTime();
+
+          const overdueDays =
+            Math.ceil(
+              diffTime /
+                (1000 *
+                  60 *
+                  60 *
+                  24),
+            );
+
+          fine =
+            overdueDays *
+            10;
+        }
+
+        return {
+          ...borrow,
+          fine,
+        };
+      },
     );
   }
 
-  @Patch(
-    'return/:id',
-  )
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('STUDENT')
-  returnBook(
-    @Param('id')
-    id: string,
+  async returnBook(
+    borrowId: number,
   ) {
-    return this.borrowService.returnBook(
-      +id,
-    );
+    const borrow =
+      await this.prisma.borrow.findUnique({
+        where: {
+          id: borrowId,
+        },
+
+        include: {
+          book: true,
+        },
+      });
+
+    if (!borrow) {
+      throw new NotFoundException(
+        'Borrow record not found',
+      );
+    }
+
+    const updatedBorrow =
+      await this.prisma.borrow.update({
+        where: {
+          id: borrowId,
+        },
+
+        data: {
+          status:
+            'RETURNED',
+
+          returnDate:
+            new Date(),
+        },
+      });
+
+    await this.prisma.book.update({
+      where: {
+        id: borrow.bookId,
+      },
+
+      data: {
+        availableCopies:
+          borrow.book
+            .availableCopies +
+          1,
+      },
+    });
+
+    return updatedBorrow;
   }
 }
-</file>
-
-<file path="backend/src/main.ts">
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-
-async function bootstrap() {
-  const app =
-    await NestFactory.create(
-      AppModule,
-    );
-
-  app.enableCors();
-
-  await app.listen(3000);
-}
-bootstrap();
 </file>
 
 <file path="frontend/src/pages/BorrowedBooks.jsx">
@@ -3084,7 +3732,7 @@ function BorrowedBooks() {
 
       <Sidebar />
 
-      <div className="ml-64 min-h-screen bg-gray-100 p-10 w-full">
+      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
 
         <h1 className="text-4xl font-bold mb-6">
           Borrowed Books
@@ -3111,7 +3759,7 @@ function BorrowedBooks() {
                   key={
                     borrow.id
                   }
-                  className="bg-white p-5 rounded-xl shadow"
+                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100"
                 >
 
                   <h2 className="text-2xl font-bold">
@@ -3151,13 +3799,18 @@ function BorrowedBooks() {
                     </p>
                   )}
 
-                  <p>
-                    Status:
-                    {' '}
-                    <span className="font-semibold">
-                      {
-                        borrow.status
-                      }
+                  <p className="mt-2">
+                    Status:{' '}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        borrow.status === 'OVERDUE'
+                          ? 'bg-red-100 text-red-700'
+                          : borrow.status === 'BORROWED'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-green-100 text-green-700'
+                      }`}
+                    >
+                      {borrow.status}
                     </span>
                   </p>
 
@@ -3172,12 +3825,11 @@ function BorrowedBooks() {
                   {/* Fine */}
                   {borrow.fine >
                     0 && (
-                    <p className="text-red-600 font-bold mt-2">
-                      Fine: ₹
-                      {
-                        borrow.fine
-                      }
-                    </p>
+                    <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-red-700 font-bold">
+                        Outstanding Fine: ₹{borrow.fine}
+                      </p>
+                    </div>
                   )}
 
                   {user.role ===
@@ -3273,26 +3925,27 @@ export class BooksService {
       {};
 
     // Search
+    // Search
     if (search) {
       where.OR = [
         {
           title: {
-            contains:
-              search,
+            contains: search,
+            mode: 'insensitive',
           },
         },
 
         {
           author: {
-            contains:
-              search,
+            contains: search,
+            mode: 'insensitive',
           },
         },
 
         {
           category: {
-            contains:
-              search,
+            contains: search,
+            mode: 'insensitive',
           },
         },
       ];
@@ -3384,312 +4037,6 @@ export class BooksService {
         id,
       },
     });
-  }
-}
-</file>
-
-<file path="backend/src/borrow/borrow.service.ts">
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-
-import { PrismaService }
-from '../prisma/prisma.service';
-
-@Injectable()
-export class BorrowService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
-
-  async borrowBook(
-    userId: number,
-    bookId: number,
-  ) {
-    const book =
-      await this.prisma.book.findUnique({
-        where: {
-          id: bookId,
-        },
-      });
-
-    if (!book) {
-      throw new NotFoundException(
-        'Book not found',
-      );
-    }
-
-    if (
-      book.availableCopies <= 0
-    ) {
-      throw new BadRequestException(
-        'No copies available',
-      );
-    }
-
-    // Prevent duplicate borrowing
-    const alreadyBorrowed =
-      await this.prisma.borrow.findFirst({
-        where: {
-          userId,
-          bookId,
-
-          status: {
-            in: [
-              'BORROWED',
-              'OVERDUE',
-            ],
-          },
-        },
-      });
-
-    if (
-      alreadyBorrowed
-    ) {
-      throw new BadRequestException(
-        'You already borrowed this book',
-      );
-    }
-
-    const dueDate =
-      new Date();
-
-    dueDate.setDate(
-      dueDate.getDate() + 7,
-    );
-
-    const borrow =
-      await this.prisma.borrow.create({
-        data: {
-          userId,
-          bookId,
-          dueDate,
-        },
-
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-
-          book: true,
-        },
-      });
-
-    await this.prisma.book.update({
-      where: {
-        id: bookId,
-      },
-
-      data: {
-        availableCopies:
-          book.availableCopies -
-          1,
-      },
-    });
-
-    return borrow;
-  }
-
-  async getBorrowedBooks() {
-    const borrows =
-      await this.prisma.borrow.findMany({
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-
-          book: true,
-        },
-
-        orderBy: {
-          borrowDate:
-            'desc',
-        },
-      });
-
-    const today =
-      new Date();
-
-    return borrows.map(
-      (borrow) => {
-        const dueDate =
-          new Date(
-            borrow.dueDate,
-          );
-
-        let fine = 0;
-
-        if (
-          borrow.status !==
-            'RETURNED' &&
-          dueDate <
-            today
-        ) {
-          borrow.status =
-            'OVERDUE';
-
-          const diffTime =
-            today.getTime() -
-            dueDate.getTime();
-
-          const overdueDays =
-            Math.ceil(
-              diffTime /
-                (1000 *
-                  60 *
-                  60 *
-                  24),
-            );
-
-          fine =
-            overdueDays *
-            10;
-        }
-
-        return {
-          ...borrow,
-          fine,
-        };
-      },
-    );
-  }
-
-  async getMyBooks(
-    userId: number,
-  ) {
-    const borrows =
-      await this.prisma.borrow.findMany({
-        where: {
-          userId,
-
-          OR: [
-            {
-              status:
-                'BORROWED',
-            },
-            {
-              status:
-                'OVERDUE',
-            },
-          ],
-        },
-
-        include: {
-          book: true,
-        },
-
-        orderBy: {
-          borrowDate:
-            'desc',
-        },
-      });
-
-    const today =
-      new Date();
-
-    return borrows.map(
-      (borrow) => {
-        const dueDate =
-          new Date(
-            borrow.dueDate,
-          );
-
-        let fine = 0;
-
-        if (
-          dueDate <
-          today
-        ) {
-          borrow.status =
-            'OVERDUE';
-
-          const diffTime =
-            today.getTime() -
-            dueDate.getTime();
-
-          const overdueDays =
-            Math.ceil(
-              diffTime /
-                (1000 *
-                  60 *
-                  60 *
-                  24),
-            );
-
-          fine =
-            overdueDays *
-            10;
-        }
-
-        return {
-          ...borrow,
-          fine,
-        };
-      },
-    );
-  }
-
-  async returnBook(
-    borrowId: number,
-  ) {
-    const borrow =
-      await this.prisma.borrow.findUnique({
-        where: {
-          id: borrowId,
-        },
-
-        include: {
-          book: true,
-        },
-      });
-
-    if (!borrow) {
-      throw new NotFoundException(
-        'Borrow record not found',
-      );
-    }
-
-    const updatedBorrow =
-      await this.prisma.borrow.update({
-        where: {
-          id: borrowId,
-        },
-
-        data: {
-          status:
-            'RETURNED',
-
-          returnDate:
-            new Date(),
-        },
-      });
-
-    await this.prisma.book.update({
-      where: {
-        id: borrow.bookId,
-      },
-
-      data: {
-        availableCopies:
-          borrow.book
-            .availableCopies +
-          1,
-      },
-    });
-
-    return updatedBorrow;
   }
 }
 </file>

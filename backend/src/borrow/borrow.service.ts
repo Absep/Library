@@ -69,12 +69,27 @@ export class BorrowService {
       dueDate.getDate() + 7,
     );
 
+    const borrowCount =
+      await this.prisma.borrow.count({
+        where: {
+          bookId,
+        },
+      });
+
+    const copyNumber =
+      `${book.title
+        .substring(0, 2)
+        .toUpperCase()}-${String(
+          borrowCount + 1,
+        ).padStart(3, '0')}`;    
+
     const borrow =
       await this.prisma.borrow.create({
         data: {
           userId,
           bookId,
           dueDate,
+          copyNumber,
         },
 
         include: {
@@ -106,7 +121,7 @@ export class BorrowService {
     return borrow;
   }
 
-  async getBorrowedBooks() {
+    async getBorrowedBooks() {
     const borrows =
       await this.prisma.borrow.findMany({
         include: {
@@ -123,48 +138,69 @@ export class BorrowService {
         },
 
         orderBy: {
-          borrowDate:
-            'desc',
+          borrowDate: 'desc',
         },
       });
 
     const today =
       new Date();
 
+    for (const borrow of borrows) {
+      const dueDate =
+        new Date(
+          borrow.dueDate,
+        );
+
+      if (
+        borrow.status !==
+          'RETURNED' &&
+        dueDate < today
+      ) {
+        await this.prisma.borrow.update({
+          where: {
+            id: borrow.id,
+          },
+
+          data: {
+            status:
+              'OVERDUE',
+          },
+        });
+
+        borrow.status =
+          'OVERDUE';
+      }
+    }
+
     return borrows.map(
       (borrow) => {
+        let fine = 0;
+
         const dueDate =
           new Date(
             borrow.dueDate,
           );
 
-        let fine = 0;
-
         if (
-          borrow.status !==
-            'RETURNED' &&
-          dueDate <
-            today
+          borrow.status ===
+          'OVERDUE'
         ) {
-          borrow.status =
-            'OVERDUE';
-
-          const diffTime =
-            today.getTime() -
-            dueDate.getTime();
-
-          const overdueDays =
+          const daysLate =
             Math.ceil(
-              diffTime /
-                (1000 *
+              (
+                today.getTime() -
+                dueDate.getTime()
+              ) /
+                (
+                  1000 *
                   60 *
                   60 *
-                  24),
+                  24
+                ),
             );
 
           fine =
-            overdueDays *
-            10;
+            daysLate * 10;
         }
 
         return {

@@ -37,9 +37,11 @@ model Book {
 
 model Borrow {
   id            Int            @id @default(autoincrement())
+  
 
   userId        Int
   bookId        Int
+  copyNumber    String?
 
   borrowDate    DateTime       @default(now())
   dueDate       DateTime

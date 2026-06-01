@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {  Link,} from 'react-router-dom'
 import api from '../services/api'
 
 function Login() {
@@ -61,7 +62,7 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4]">
 
       <form
         onSubmit={handleLogin}
@@ -99,10 +100,21 @@ function Login() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-3 rounded transition"
+          className="w-full bg-[#4F7C65]
+hover:bg-[#365545] hover:bg-blue-600 text-white p-3 rounded transition"
         >
           Login
         </button>
+        <p className="mt-4 text-center">
+          Don't have an account?
+
+          <Link
+            to="/register"
+            className="text-[#365545] font-semibold ml-1"
+          >
+            Register
+          </Link>
+        </p>
       </form>
     </div>
   )

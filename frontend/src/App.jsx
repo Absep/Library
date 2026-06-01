@@ -4,6 +4,7 @@ import {
 } from 'react-router-dom'
 
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Books from './pages/Books'
 import BorrowedBooks from './pages/BorrowedBooks'
@@ -21,6 +22,11 @@ function App() {
       />
 
       <Route
+        path="/register"
+        element={<Register />}
+      />
+
+      <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
@@ -28,7 +34,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      
+
       <Route
         path="/admin-books"
         element={

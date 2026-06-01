@@ -22,15 +22,24 @@ export class DashboardService {
     await this.prisma.borrow.count({
       where: {
         status: 'BORROWED',
+         dueDate: {
+        gte: new Date(),
+      },
       },
     });
 
   const overdueBooks =
-    await this.prisma.borrow.count({
-      where: {
-        status: 'OVERDUE',
+  await this.prisma.borrow.count({
+    where: {
+      status: {
+        not: 'RETURNED',
       },
-    });
+
+      dueDate: {
+        lt: new Date(),
+      },
+    },
+  });
 
   const students =
     await this.prisma.user.count({
