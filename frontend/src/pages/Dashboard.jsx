@@ -57,15 +57,15 @@ function Dashboard() {
       />
 
       <div className={`
-          flex-1
-          min-h-screen
-          bg-[#F8F7F4]
-          p-10
-          transition-all
-          duration-300
-        `}>
+        flex-1
+        min-h-screen
+        bg-[#F8F7F4]
+        p-4 md:p-6 lg:p-10
+        transition-all
+        duration-300
+      `}>
 
-        <h1 className="text-5xl font-bold text-[#365545] mb-2">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#365545] mb-2">
           Admin Dashboard
         </h1>
 

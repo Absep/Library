@@ -1474,406 +1474,6 @@ body {
 }
 </file>
 
-<file path="frontend/src/pages/AdminBooks.jsx">
-import { useEffect, useState } from 'react'
-import api from '../services/api'
-import Sidebar from '../components/Sidebar'
-
-function AdminBooks() {
-  const [books, setBooks] = useState([])
-  const [search, setSearch] =
-    useState('')
-
-  const [form, setForm] = useState({
-    title: '',
-    author: '',
-    category: '',
-    availableCopies: 1,
-  })
-
-  const [editingId, setEditingId] =
-    useState(null)
-
-  useEffect(() => {
-    fetchBooks()
-  }, [search])
-
-  const fetchBooks = async () => {
-    try {
-      const token =
-        localStorage.getItem(
-          'token',
-        )
-
-      const response =
-        await api.get(
-          `/books?search=${search}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          },
-        )
-
-      setBooks(
-        response.data.data ||
-          response.data,
-      )
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleChange = (
-    e,
-  ) => {
-    setForm({
-      ...form,
-      [e.target.name]:
-        e.target.value,
-    })
-  }
-
-  const handleSubmit =
-    async (e) => {
-      e.preventDefault()
-
-      try {
-        const token =
-          localStorage.getItem(
-            'token',
-          )
-
-        const bookData = {
-          ...form,
-
-          quantity:
-            Number(
-              form.availableCopies,
-            ),
-
-          availableCopies:
-            Number(
-              form.availableCopies,
-            ),
-
-          isbn:
-            editingId
-              ? undefined
-              : `BOOK-${Date.now()}`,
-        }
-
-        if (editingId) {
-          delete bookData.isbn
-
-          await api.patch(
-            `/books/${editingId}`,
-            bookData,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            },
-          )
-
-          alert(
-            'Book updated successfully',
-          )
-
-        } else {
-          await api.post(
-            '/books',
-            bookData,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            },
-          )
-
-          alert(
-            'Book added successfully',
-          )
-        }
-
-        setForm({
-          title: '',
-          author: '',
-          category: '',
-          availableCopies: 1,
-        })
-
-        setEditingId(
-          null,
-        )
-
-        fetchBooks()
-
-      } catch (error) {
-        console.log(error)
-
-        alert(
-          error.response?.data
-            ?.message ||
-            'Operation failed',
-        )
-      }
-    }
-
-  const handleEdit = (
-    book,
-  ) => {
-    setEditingId(
-      book.id,
-    )
-
-    setForm({
-      title:
-        book.title,
-      author:
-        book.author,
-      category:
-        book.category,
-      availableCopies:
-        book.availableCopies,
-    })
-  }
-
-  const handleDelete =
-    async (id) => {
-      const confirmDelete =
-        window.confirm(
-          'Delete this book?',
-        )
-
-      if (
-        !confirmDelete
-      ) {
-        return
-      }
-
-      try {
-        const token =
-          localStorage.getItem(
-            'token',
-          )
-
-        await api.delete(
-          `/books/${id}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          },
-        )
-
-        alert(
-          'Book deleted successfully',
-        )
-
-        fetchBooks()
-
-      } catch (error) {
-        console.log(error)
-
-        alert(
-          error.response?.data
-            ?.message ||
-            'Delete failed',
-        )
-      }
-    }
-
-  return (
-    <div className="flex">
-      <Sidebar />
-
-      <div className="ml-64 w-full min-h-screen bg-[#F8F7F4] p-10">
-
-        <h1 className="text-4xl font-bold mb-6">
-          Manage Books
-        </h1>
-
-        <input
-          type="text"
-          placeholder="Search by title, author or category..."
-          value={search}
-          onChange={(e) =>
-            setSearch(
-              e.target.value,
-            )
-          }
-          className="border p-3 rounded w-full mb-6"
-        />
-
-        <form
-          onSubmit={
-            handleSubmit
-          }
-          className="bg-white p-6 rounded-xl shadow mb-8"
-        >
-          <div className="grid md:grid-cols-2 gap-4">
-
-            <input
-              type="text"
-              name="title"
-              placeholder="Book Title"
-              value={
-                form.title
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-            <input
-              type="text"
-              name="author"
-              placeholder="Author"
-              value={
-                form.author
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-            <input
-              type="text"
-              name="category"
-              placeholder="Category"
-              value={
-                form.category
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-            <input
-              type="number"
-              name="availableCopies"
-              placeholder="Number of Copies"
-              value={
-                form.availableCopies
-              }
-              onChange={
-                handleChange
-              }
-              className="border p-3 rounded"
-              required
-            />
-
-          </div>
-
-          <button
-            type="submit"
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
-          >
-            {editingId
-              ? 'Update Book'
-              : 'Add Book'}
-          </button>
-
-        </form>
-
-        <div className="grid gap-4">
-
-          {books.length ===
-          0 ? (
-            <div className="bg-white p-6 rounded-xl shadow">
-              No books found
-            </div>
-          ) : (
-            books.map(
-              (
-                book,
-              ) => (
-                <div
-                  key={
-                    book.id
-                  }
-                  className="bg-white p-5 rounded-xl shadow"
-                >
-                  <h2 className="text-2xl font-bold">
-                    {
-                      book.title
-                    }
-                  </h2>
-
-                  <p>
-                    Author:{' '}
-                    {
-                      book.author
-                    }
-                  </p>
-
-                  <p>
-                    Category:{' '}
-                    {
-                      book.category
-                    }
-                  </p>
-
-                  <p>
-                    Available
-                    Copies:{' '}
-                    {
-                      book.availableCopies
-                    }
-                  </p>
-
-                  <div className="flex gap-3 mt-4">
-
-                    <button
-                      onClick={() =>
-                        handleEdit(
-                          book,
-                        )
-                      }
-                      className="bg-yellow-500 text-white px-4 py-2 rounded"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        handleDelete(
-                          book.id,
-                        )
-                      }
-                      className="bg-red-500 text-white px-4 py-2 rounded"
-                    >
-                      Delete
-                    </button>
-
-                  </div>
-                </div>
-              ),
-            )
-          )}
-
-        </div>
-
-      </div>
-    </div>
-  )
-}
-
-export default AdminBooks
-</file>
-
 <file path="frontend/src/pages/Register.jsx">
 import {
   useState,
@@ -2059,6 +1659,7 @@ export default defineConfig({
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
+    "nodemailer": "^8.0.10",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "prisma": "^5.22.0",
@@ -2333,6 +1934,727 @@ async function bootstrap() {
 bootstrap();
 </file>
 
+<file path="frontend/src/pages/AdminBooks.jsx">
+import { useEffect, useState } from 'react'
+import api from '../services/api'
+import Sidebar from '../components/Sidebar'
+
+function AdminBooks() {
+  const [books, setBooks] = useState([])
+  const [search, setSearch] =
+    useState('')
+  const [collapsed, setCollapsed] =
+    useState(false)
+
+  const [form, setForm] = useState({
+    title: '',
+    author: '',
+    category: '',
+    availableCopies: 1,
+  })
+
+  const [editingId, setEditingId] =
+    useState(null)
+
+  useEffect(() => {
+    fetchBooks()
+  }, [search])
+
+  const fetchBooks = async () => {
+    try {
+      const token =
+        localStorage.getItem(
+          'token',
+        )
+
+      const response =
+        await api.get(
+          `/books?search=${search}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+      setBooks(
+        response.data.data ||
+          response.data,
+      )
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleChange = (
+    e,
+  ) => {
+    setForm({
+      ...form,
+      [e.target.name]:
+        e.target.value,
+    })
+  }
+
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault()
+
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        const bookData = {
+          ...form,
+
+          quantity:
+            Number(
+              form.availableCopies,
+            ),
+
+          availableCopies:
+            Number(
+              form.availableCopies,
+            ),
+
+          isbn:
+            editingId
+              ? undefined
+              : `BOOK-${Date.now()}`,
+        }
+
+        if (editingId) {
+          delete bookData.isbn
+
+          await api.patch(
+            `/books/${editingId}`,
+            bookData,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+          alert(
+            'Book updated successfully',
+          )
+
+        } else {
+          await api.post(
+            '/books',
+            bookData,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            },
+          )
+
+          alert(
+            'Book added successfully',
+          )
+        }
+
+        setForm({
+          title: '',
+          author: '',
+          category: '',
+          availableCopies: 1,
+        })
+
+        setEditingId(
+          null,
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        console.log(error)
+
+        alert(
+          error.response?.data
+            ?.message ||
+            'Operation failed',
+        )
+      }
+    }
+
+  const handleEdit = (
+    book,
+  ) => {
+    setEditingId(
+      book.id,
+    )
+
+    setForm({
+      title:
+        book.title,
+      author:
+        book.author,
+      category:
+        book.category,
+      availableCopies:
+        book.availableCopies,
+    })
+  }
+
+  const handleDelete =
+    async (id) => {
+      const confirmDelete =
+        window.confirm(
+          'Delete this book?',
+        )
+
+      if (
+        !confirmDelete
+      ) {
+        return
+      }
+
+      try {
+        const token =
+          localStorage.getItem(
+            'token',
+          )
+
+        await api.delete(
+          `/books/${id}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        )
+
+        alert(
+          'Book deleted successfully',
+        )
+
+        fetchBooks()
+
+      } catch (error) {
+        console.log(error)
+
+        alert(
+          error.response?.data
+            ?.message ||
+            'Delete failed',
+        )
+      }
+    }
+    
+
+  return (
+    <div className="flex">
+
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
+
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-10">
+
+        <h1 className="text-4xl font-bold mb-6">
+          Manage Books
+        </h1>
+
+        <input
+          type="text"
+          placeholder="Search by title, author or category..."
+          value={search}
+          onChange={(e) =>
+            setSearch(
+              e.target.value,
+            )
+          }
+          className="border p-3 rounded w-full mb-6"
+        />
+
+        <form
+          onSubmit={
+            handleSubmit
+          }
+          className="bg-white p-6 rounded-xl shadow mb-8"
+        >
+          <div className="grid md:grid-cols-2 gap-4">
+
+            <input
+              type="text"
+              name="title"
+              placeholder="Book Title"
+              value={
+                form.title
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              name="author"
+              placeholder="Author"
+              value={
+                form.author
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="text"
+              name="category"
+              placeholder="Category"
+              value={
+                form.category
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+            <input
+              type="number"
+              name="availableCopies"
+              placeholder="Number of Copies"
+              value={
+                form.availableCopies
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded"
+              required
+            />
+
+          </div>
+
+          <button
+            type="submit"
+            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
+          >
+            {editingId
+              ? 'Update Book'
+              : 'Add Book'}
+          </button>
+
+        </form>
+
+        <div className="grid gap-4">
+
+          {books.length ===
+          0 ? (
+            <div className="bg-white p-6 rounded-xl shadow">
+              No books found
+            </div>
+          ) : (
+            books.map(
+              (
+                book,
+              ) => (
+                <div
+                  key={
+                    book.id
+                  }
+                  className="bg-white p-5 rounded-xl shadow"
+                >
+                  <h2 className="text-2xl font-bold">
+                    {
+                      book.title
+                    }
+                  </h2>
+
+                  <p>
+                    Author:{' '}
+                    {
+                      book.author
+                    }
+                  </p>
+
+                  <p>
+                    Category:{' '}
+                    {
+                      book.category
+                    }
+                  </p>
+
+                  <p>
+                    Available
+                    Copies:{' '}
+                    {
+                      book.availableCopies
+                    }
+                  </p>
+
+                  <div className="flex gap-3 mt-4">
+
+                    <button
+                      onClick={() =>
+                        handleEdit(
+                          book,
+                        )
+                      }
+                      className="bg-yellow-500 text-white px-4 py-2 rounded"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleDelete(
+                          book.id,
+                        )
+                      }
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+                </div>
+              ),
+            )
+          )}
+
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+export default AdminBooks
+</file>
+
+<file path="frontend/src/pages/Login.jsx">
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {  Link,} from 'react-router-dom'
+import api from '../services/api'
+
+function Login() {
+  const [email, setEmail] =
+    useState('')
+
+  const [password, setPassword] =
+    useState('')
+
+  const navigate =
+    useNavigate()
+
+  const handleLogin = async (
+    e,
+  ) => {
+    e.preventDefault()
+
+    try {
+      const response =
+        await api.post(
+          '/auth/login',
+          {
+            email,
+            password,
+          },
+        )
+
+      localStorage.setItem(
+        'token',
+        response.data
+          .access_token,
+      )
+
+      localStorage.setItem(
+        'user',
+        JSON.stringify(
+          response.data.user,
+        ),
+      )
+
+      const user =
+        response.data.user
+
+      if (
+        user.role === 'ADMIN'
+      ) {
+        navigate(
+          '/dashboard',
+        )
+      } else {
+        navigate('/books')
+      }
+
+    } catch (error) {
+      alert(
+        'Invalid credentials',
+      )
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4]">
+
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded-xl shadow-md w-96"
+      >
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Library Login
+        </h1>
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border p-3 rounded mb-4"
+          value={email}
+          onChange={(e) =>
+            setEmail(
+              e.target.value,
+            )
+          }
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border p-3 rounded mb-4"
+          value={password}
+          onChange={(e) =>
+            setPassword(
+              e.target.value,
+            )
+          }
+          required
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-[#4F7C65]
+hover:bg-[#365545] hover:bg-blue-600 text-white p-3 rounded transition"
+        >
+          Login
+        </button>
+        <p className="mt-4 text-center">
+          Don't have an account?
+
+          <Link
+            to="/register"
+            className="text-[#365545] font-semibold ml-1"
+          >
+            Register
+          </Link>
+        </p>
+      </form>
+    </div>
+  )
+}
+
+export default Login
+</file>
+
+<file path="backend/src/books/books.controller.ts">
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Query,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+
+import { BooksService } from './books.service';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+
+@Controller('books')
+export class BooksController {
+  constructor(
+    private booksService: BooksService,
+  ) {}
+
+  @Post()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  create(
+    @Body() body: any,
+  ) {
+    return this.booksService.create(
+      body,
+    );
+  }
+
+  @Get()
+  @UseGuards(
+    JwtAuthGuard,
+  )
+  findAll(
+    @Query() query: any,
+  ) {
+    return this.booksService.findAll(
+      query,
+    );
+  }
+
+  @Get(':id')
+  @UseGuards(
+    JwtAuthGuard,
+  )
+  findOne(
+    @Param('id') id: string,
+  ) {
+    return this.booksService.findOne(
+      +id,
+    );
+  }
+
+  @Patch(':id')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  update(
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.booksService.update(
+      +id,
+      body,
+    );
+  }
+
+  @Delete(':id')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  remove(
+    @Param('id') id: string,
+  ) {
+    return this.booksService.remove(
+      +id,
+    );
+  }
+}
+</file>
+
+<file path="backend/src/dashboard/dashboard.service.ts">
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class DashboardService {
+  constructor(
+    private prisma: PrismaService,
+  ) {}
+
+  async getDashboardStats() {
+  const totalBooks =
+    await this.prisma.book.count();
+
+  const availableBooks =
+    await this.prisma.book.aggregate({
+      _sum: {
+        availableCopies: true,
+      },
+    });
+
+  const borrowedBooks =
+    await this.prisma.borrow.count({
+      where: {
+        status: 'BORROWED',
+         dueDate: {
+        gte: new Date(),
+      },
+      },
+    });
+
+  const overdueBooks =
+  await this.prisma.borrow.count({
+    where: {
+      status: {
+        not: 'RETURNED',
+      },
+
+      dueDate: {
+        lt: new Date(),
+      },
+    },
+  });
+
+  const students =
+    await this.prisma.user.count({
+      where: {
+        role: 'STUDENT',
+      },
+    });
+
+  const recentBorrows =
+    await this.prisma.borrow.findMany({
+      take: 5,
+
+      orderBy: {
+        borrowDate: 'desc',
+      },
+
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+
+        book: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+  return {
+    totalBooks,
+
+    availableBooks:
+      availableBooks._sum
+        .availableCopies || 0,
+
+    borrowedBooks,
+
+    overdueBooks,
+
+    students,
+
+    recentBorrows,
+  };
+}
+}
+</file>
+
 <file path="frontend/package.json">
 {
   "name": "frontend",
@@ -2350,6 +2672,7 @@ bootstrap();
     "axios": "^1.16.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.16.0"
   },
   "devDependencies": {
@@ -2368,22 +2691,102 @@ bootstrap();
 }
 </file>
 
+<file path="frontend/src/App.jsx">
+import {
+  Routes,
+  Route,
+} from 'react-router-dom'
+
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Dashboard from './pages/Dashboard'
+import Books from './pages/Books'
+import BorrowedBooks from './pages/BorrowedBooks'
+import AdminBooks from './pages/AdminBooks'
+
+import ProtectedRoute
+  from './components/ProtectedRoute'
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<Login />}
+      />
+
+      <Route
+        path="/register"
+        element={<Register />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin-books"
+        element={
+          <ProtectedRoute>
+            <AdminBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/borrowed-books"
+        element={
+          <ProtectedRoute>
+            <BorrowedBooks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/books"
+        element={
+          <ProtectedRoute>
+            <Books />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  )
+}
+
+export default App
+</file>
+
 <file path="frontend/src/components/Sidebar.jsx">
 import {
-  Link,
+  NavLink,
   useNavigate,
 } from 'react-router-dom'
 
-function Sidebar() {
+import {
+  FaChartBar,
+  FaTools,
+  FaBook,
+  FaBookOpen,
+  FaSignOutAlt,
+  FaBars,
+} from 'react-icons/fa'
+
+function Sidebar({
+  collapsed,
+  setCollapsed,
+}) {
   const navigate =
     useNavigate()
 
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        'user',
-      ),
-    )
+  const user = JSON.parse(
+    localStorage.getItem('user'),
+  )
 
   const handleLogout =
     () => {
@@ -2398,83 +2801,214 @@ function Sidebar() {
       navigate('/')
     }
 
+  const toggleSidebar =
+    () => {
+      const newValue =
+        !collapsed
+
+      setCollapsed(newValue)
+
+      localStorage.setItem(
+        'sidebarCollapsed',
+        JSON.stringify(
+          newValue,
+        ),
+      )
+    }
+
+  const linkClass = ({
+    isActive,
+  }) =>
+    `
+    flex
+    items-center
+    ${
+      collapsed
+        ? 'justify-center'
+        : 'gap-3'
+    }
+    p-3
+    rounded-lg
+    transition-all
+    duration-200
+    ${
+      isActive
+        ? `
+          bg-[#4F7C65]
+          text-white
+          shadow-lg
+          border-l-4
+          border-white
+        `
+        : `
+          hover:bg-[#4F7C65]
+          hover:translate-x-1
+        `
+    }
+  `
+
   return (
-    <div className="w-64 h-screen bg-[#365545] text-white p-5 fixed">
+    <div
+      className={`
+        h-screen
+        min-h-screen
+        bg-[#365545]
+        text-white
+        flex
+        flex-col
+        flex-shrink-0
+        shadow-lg
+        transition-all
+        duration-300
+        ${
+          collapsed
+            ? 'w-16'
+            : 'w-56'
+        }
+      `}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 px-3 py-4 border-b border-[#4F7C65]">
 
-      <h1 className="text-2xl font-bold mb-10">
-        Library
-      </h1>
+        <button
+          onClick={
+            toggleSidebar
+          }
+          className="
+            w-10
+            h-10
+            flex
+            items-center
+            justify-center
+            rounded-lg
+            hover:bg-[#4F7C65]
+            transition-all
+          "
+        >
+          <FaBars size={18} />
+        </button>
 
-      <div className="flex flex-col gap-4">
+        {!collapsed && (
+          <h1 className="text-xl font-bold">
+            Library
+          </h1>
+        )}
+
+      </div>
+
+      {/* Navigation */}
+      <div className="flex flex-col gap-2 p-2 mt-3 flex-1">
 
         {user?.role ===
           'ADMIN' && (
           <>
-            <Link
+            <NavLink
               to="/dashboard"
-              className="
-              text-gray-100
-              hover:text-white
-              hover:bg-[#4F7C65]
-              rounded-lg
-              p-2
-              transition-all
-              "
+              className={
+                linkClass
+              }
+              title="Dashboard"
             >
-              Dashboard
-            </Link>
+              <FaChartBar
+                size={18}
+              />
 
-            <Link
+              {!collapsed && (
+                <span>
+                  Dashboard
+                </span>
+              )}
+            </NavLink>
+
+            <NavLink
               to="/admin-books"
-              className="
-              text-gray-100
-              hover:text-white
-              hover:bg-[#4F7C65]
-              rounded-lg
-              p-2
-              transition-all
-              "
+              className={
+                linkClass
+              }
+              title="Manage Books"
             >
-              Manage Books
-            </Link>
+              <FaTools
+                size={18}
+              />
+
+              {!collapsed && (
+                <span>
+                  Manage Books
+                </span>
+              )}
+            </NavLink>
           </>
         )}
 
-        <Link
+        <NavLink
           to="/books"
-          className="
-          text-gray-100
-          hover:text-white
-          hover:bg-[#4F7C65]
-          rounded-lg
-          p-2
-          transition-all
-          "
+          className={
+            linkClass
+          }
+          title="Books"
         >
-          Books
-        </Link>
+          <FaBook
+            size={18}
+          />
 
-        <Link
+          {!collapsed && (
+            <span>
+              Books
+            </span>
+          )}
+        </NavLink>
+
+        <NavLink
           to="/borrowed-books"
-          className="
-          text-gray-100
-          hover:text-white
-          hover:bg-[#4F7C65]
-          rounded-lg
-          p-2
-          transition-all
-"
+          className={
+            linkClass
+          }
+          title="Borrowed Books"
         >
-          Borrowed Books
-        </Link>
+          <FaBookOpen
+            size={18}
+          />
+
+          {!collapsed && (
+            <span>
+              Borrowed Books
+            </span>
+          )}
+        </NavLink>
+
+      </div>
+
+      {/* Logout */}
+      <div className="p-3 border-t border-[#4F7C65] flex justify-center">
 
         <button
           onClick={
             handleLogout
           }
-          className="bg-red-500 p-2 rounded mt-10"
+          className={`
+            bg-red-500
+            hover:bg-red-600
+            transition-all
+            rounded-lg
+            flex
+            items-center
+            justify-center
+            ${
+              collapsed
+                ? 'w-10 h-10'
+                : 'w-full py-2 gap-2'
+            }
+          `}
         >
-          Logout
+          <FaSignOutAlt
+            size={18}
+          />
+
+          {!collapsed && (
+            <span>
+              Logout
+            </span>
+          )}
         </button>
 
       </div>
@@ -2493,7 +3027,7 @@ import '@fontsource/inter'
 import {
   BrowserRouter,
 } from 'react-router-dom'
-
+import { Toaster } from 'react-hot-toast'
 import App from './App'
 import './index.css'
 
@@ -2503,6 +3037,7 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <BrowserRouter>
       <App />
+      <Toaster position="top-right" />
     </BrowserRouter>
   </React.StrictMode>
 )
@@ -2513,7 +3048,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-
+import toast from 'react-hot-toast'
 import api
 from '../services/api'
 
@@ -2526,6 +3061,9 @@ from '../hooks/useDebounce'
 function Books() {
   const [books, setBooks] =
     useState([])
+  
+  const [collapsed, setCollapsed] =
+  useState(false)
 
   const [search, setSearch] =
     useState('')
@@ -2621,27 +3159,31 @@ function Books() {
           },
         )
 
-        alert(
+        toast.success(
           'Book Borrowed Successfully',
         )
 
         fetchBooks()
 
       } catch (error) {
-        alert(
+        toast.error(
           error.response?.data
             ?.message ||
           'Could not borrow book',
         )
       }
     }
+    
 
   return (
     <div className="flex">
 
-      <Sidebar />
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
-      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-10">
 
         <h1 className="text-4xl font-bold mb-6">
           Books
@@ -2842,14 +3384,27 @@ function Dashboard() {
       }
     }
 
+  const [collapsed, setCollapsed] =
+  useState(false)
+
   return (
     <div className="flex">
 
-      <Sidebar />
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
-      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+      <div className={`
+        flex-1
+        min-h-screen
+        bg-[#F8F7F4]
+        p-4 md:p-6 lg:p-10
+        transition-all
+        duration-300
+      `}>
 
-        <h1 className="text-5xl font-bold text-[#365545] mb-2">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#365545] mb-2">
           Admin Dashboard
         </h1>
 
@@ -2993,132 +3548,6 @@ function Dashboard() {
 export default Dashboard
 </file>
 
-<file path="frontend/src/pages/Login.jsx">
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import {  Link,} from 'react-router-dom'
-import api from '../services/api'
-
-function Login() {
-  const [email, setEmail] =
-    useState('')
-
-  const [password, setPassword] =
-    useState('')
-
-  const navigate =
-    useNavigate()
-
-  const handleLogin = async (
-    e,
-  ) => {
-    e.preventDefault()
-
-    try {
-      const response =
-        await api.post(
-          '/auth/login',
-          {
-            email,
-            password,
-          },
-        )
-
-      localStorage.setItem(
-        'token',
-        response.data
-          .access_token,
-      )
-
-      localStorage.setItem(
-        'user',
-        JSON.stringify(
-          response.data.user,
-        ),
-      )
-
-      const user =
-        response.data.user
-
-      if (
-        user.role === 'ADMIN'
-      ) {
-        navigate(
-          '/dashboard',
-        )
-      } else {
-        navigate('/books')
-      }
-
-    } catch (error) {
-      alert(
-        'Invalid credentials',
-      )
-    }
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4]">
-
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-8 rounded-xl shadow-md w-96"
-      >
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Library Login
-        </h1>
-
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-3 rounded mb-4"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value,
-            )
-          }
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-3 rounded mb-4"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value,
-            )
-          }
-          required
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-[#4F7C65]
-hover:bg-[#365545] hover:bg-blue-600 text-white p-3 rounded transition"
-        >
-          Login
-        </button>
-        <p className="mt-4 text-center">
-          Don't have an account?
-
-          <Link
-            to="/register"
-            className="text-[#365545] font-semibold ml-1"
-          >
-            Register
-          </Link>
-        </p>
-      </form>
-    </div>
-  )
-}
-
-export default Login
-</file>
-
 <file path="package.json">
 {
   "dependencies": {
@@ -3131,268 +3560,11 @@ export default Login
     "class-validator": "^0.15.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "prisma": "^7.8.0"
+    "prisma": "^7.8.0",
+    "react-hot-toast": "^2.6.0",
+    "react-icons": "^5.6.0"
   }
 }
-</file>
-
-<file path="backend/src/books/books.controller.ts">
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Query,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-
-import { BooksService } from './books.service';
-
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
-
-@Controller('books')
-export class BooksController {
-  constructor(
-    private booksService: BooksService,
-  ) {}
-
-  @Post()
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('ADMIN')
-  create(
-    @Body() body: any,
-  ) {
-    return this.booksService.create(
-      body,
-    );
-  }
-
-  @Get()
-  @UseGuards(
-    JwtAuthGuard,
-  )
-  findAll(
-    @Query() query: any,
-  ) {
-    return this.booksService.findAll(
-      query,
-    );
-  }
-
-  @Get(':id')
-  @UseGuards(
-    JwtAuthGuard,
-  )
-  findOne(
-    @Param('id') id: string,
-  ) {
-    return this.booksService.findOne(
-      +id,
-    );
-  }
-
-  @Patch(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('ADMIN')
-  update(
-    @Param('id') id: string,
-    @Body() body: any,
-  ) {
-    return this.booksService.update(
-      +id,
-      body,
-    );
-  }
-
-  @Delete(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    RolesGuard,
-  )
-  @Roles('ADMIN')
-  remove(
-    @Param('id') id: string,
-  ) {
-    return this.booksService.remove(
-      +id,
-    );
-  }
-}
-</file>
-
-<file path="backend/src/dashboard/dashboard.service.ts">
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-
-@Injectable()
-export class DashboardService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
-
-  async getDashboardStats() {
-  const totalBooks =
-    await this.prisma.book.count();
-
-  const availableBooks =
-    await this.prisma.book.aggregate({
-      _sum: {
-        availableCopies: true,
-      },
-    });
-
-  const borrowedBooks =
-    await this.prisma.borrow.count({
-      where: {
-        status: 'BORROWED',
-         dueDate: {
-        gte: new Date(),
-      },
-      },
-    });
-
-  const overdueBooks =
-  await this.prisma.borrow.count({
-    where: {
-      status: {
-        not: 'RETURNED',
-      },
-
-      dueDate: {
-        lt: new Date(),
-      },
-    },
-  });
-
-  const students =
-    await this.prisma.user.count({
-      where: {
-        role: 'STUDENT',
-      },
-    });
-
-  const recentBorrows =
-    await this.prisma.borrow.findMany({
-      take: 5,
-
-      orderBy: {
-        borrowDate: 'desc',
-      },
-
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
-        },
-
-        book: {
-          select: {
-            title: true,
-          },
-        },
-      },
-    });
-
-  return {
-    totalBooks,
-
-    availableBooks:
-      availableBooks._sum
-        .availableCopies || 0,
-
-    borrowedBooks,
-
-    overdueBooks,
-
-    students,
-
-    recentBorrows,
-  };
-}
-}
-</file>
-
-<file path="frontend/src/App.jsx">
-import {
-  Routes,
-  Route,
-} from 'react-router-dom'
-
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import Books from './pages/Books'
-import BorrowedBooks from './pages/BorrowedBooks'
-import AdminBooks from './pages/AdminBooks'
-
-import ProtectedRoute
-  from './components/ProtectedRoute'
-
-function App() {
-  return (
-    <Routes>
-      <Route
-        path="/"
-        element={<Login />}
-      />
-
-      <Route
-        path="/register"
-        element={<Register />}
-      />
-
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin-books"
-        element={
-          <ProtectedRoute>
-            <AdminBooks />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/borrowed-books"
-        element={
-          <ProtectedRoute>
-            <BorrowedBooks />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/books"
-        element={
-          <ProtectedRoute>
-            <Books />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
-  )
-}
-
-export default App
 </file>
 
 <file path="backend/src/books/books.service.ts">
@@ -3918,7 +4090,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-
+import toast from 'react-hot-toast'
 import api
 from '../services/api'
 
@@ -3931,6 +4103,9 @@ function BorrowedBooks() {
 
   const [loading, setLoading] =
     useState(true)
+
+  const [collapsed, setCollapsed] =
+  useState(false)
 
   const user =
     JSON.parse(
@@ -4046,7 +4221,7 @@ function BorrowedBooks() {
           },
         )
 
-        alert(
+        toast.success(
           'Book Returned Successfully',
         )
 
@@ -4066,22 +4241,26 @@ function BorrowedBooks() {
       } catch (error) {
         console.log(error)
 
-        alert(
+        toast.error(
           error.response?.data
             ?.message ||
             'Could not return book',
         )
       }
     }
+    
 
   return (
     <div className="flex">
 
-      <Sidebar />
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
-      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-4 md:p-6 lg:p-10">
 
-        <h1 className="text-4xl font-bold mb-6">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">
           Borrowed Books
         </h1>
 
@@ -4096,7 +4275,7 @@ function BorrowedBooks() {
             books
           </p>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
             {books.map(
               (
@@ -4106,8 +4285,19 @@ function BorrowedBooks() {
                   key={
                     borrow.id
                   }
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100"
-                >
+                  className="
+                  bg-white
+                  rounded-2xl
+                  shadow-lg
+                  hover:shadow-2xl
+                  transition-all
+                  duration-300
+                  p-4 md:p-6
+                  border
+                  border-gray-100
+                  break-words
+                  "
+                                  >
 
                   <h2 className="text-2xl font-bold">
                     {

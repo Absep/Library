@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import Books from './pages/Books'
 import BorrowedBooks from './pages/BorrowedBooks'
 import AdminBooks from './pages/AdminBooks'
+import History from './pages/History'
 
 import ProtectedRoute
   from './components/ProtectedRoute'
@@ -52,7 +53,16 @@ function App() {
           </ProtectedRoute>
         }
       />
-
+      
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <History />
+          </ProtectedRoute>
+        }
+      />
+      
       <Route
         path="/books"
         element={
@@ -62,6 +72,8 @@ function App() {
         }
       />
     </Routes>
+
+    
   )
 }
 

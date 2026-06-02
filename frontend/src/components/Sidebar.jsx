@@ -8,6 +8,7 @@ import {
   FaTools,
   FaBook,
   FaBookOpen,
+  FaHistory,
   FaSignOutAlt,
   FaBars,
 } from 'react-icons/fa'
@@ -174,6 +175,24 @@ function Sidebar({
             </NavLink>
           </>
         )}
+
+        <NavLink
+        to="/history"
+        className={
+          linkClass
+        }
+        title="History"
+      >
+        <FaHistory
+          size={18}
+        />
+
+        {!collapsed && (
+          <span>
+            History
+          </span>
+        )}
+      </NavLink>
 
         <NavLink
           to="/books"

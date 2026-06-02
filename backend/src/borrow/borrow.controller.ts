@@ -7,6 +7,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import { Query } from '@nestjs/common';
+
 import { BorrowService }
 from './borrow.service';
 
@@ -55,6 +57,33 @@ export class BorrowController {
   @Roles('ADMIN')
   getBorrowedBooks() {
     return this.borrowService.getBorrowedBooks();
+  }
+
+  @Get('history')
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles('ADMIN')
+  getHistory(
+  @Query('page')
+  page: string,
+
+  @Query('limit')
+  limit: string,
+
+  @Query('student')
+  student: string,
+
+  @Query('status')
+  status: string,
+  ) {
+    return this.borrowService.getHistory(
+      Number(page) || 1,
+      Number(limit) || 10,
+      student,
+      status,
+    );
   }
 
   @Get('my/:userId')

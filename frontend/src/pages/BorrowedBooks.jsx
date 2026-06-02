@@ -170,9 +170,9 @@ function BorrowedBooks() {
         setCollapsed={setCollapsed}
       />
 
-      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-10">
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-4 md:p-6 lg:p-10">
 
-        <h1 className="text-4xl font-bold mb-6">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">
           Borrowed Books
         </h1>
 
@@ -187,7 +187,7 @@ function BorrowedBooks() {
             books
           </p>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
             {books.map(
               (
@@ -197,8 +197,19 @@ function BorrowedBooks() {
                   key={
                     borrow.id
                   }
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100"
-                >
+                  className="
+                  bg-white
+                  rounded-2xl
+                  shadow-lg
+                  hover:shadow-2xl
+                  transition-all
+                  duration-300
+                  p-4 md:p-6
+                  border
+                  border-gray-100
+                  break-words
+                  "
+                                  >
 
                   <h2 className="text-2xl font-bold">
                     {

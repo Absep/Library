@@ -336,4 +336,72 @@ export class BorrowService {
 
     return updatedBorrow;
   }
+
+  async getHistory(
+  page = 1,
+  limit = 10,
+  student?: string,
+  status?: string,
+) {
+  const where: any = {}
+
+  if (student) {
+    where.user = {
+      name: {
+        contains: student,
+        mode: 'insensitive',
+      },
+    }
+  }
+
+  if (status) {
+    where.status = status
+  }
+
+  const total =
+    await this.prisma.borrow.count({
+      where,
+    })
+
+  const history =
+    await this.prisma.borrow.findMany({
+      where,
+
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+
+        book: true,
+      },
+
+      orderBy: {
+        borrowDate: 'desc',
+      },
+
+      skip:
+        (page - 1) * limit,
+
+      take: limit,
+    })
+
+  return {
+    data: history,
+
+    totalPages:
+      Math.ceil(
+        total / limit,
+      ),
+
+    currentPage: page,
+
+    totalRecords:
+      total,
+  }
+}
 }
