@@ -86,8 +86,9 @@ function Sidebar({
   return (
     <div
       className={`
+        sticky
+        top-0
         h-screen
-        min-h-screen
         bg-[#365545]
         text-white
         flex
@@ -103,7 +104,9 @@ function Sidebar({
         }
       `}
     >
+
       {/* Header */}
+
       <div className="flex items-center gap-3 px-3 py-4 border-b border-[#4F7C65]">
 
         <button
@@ -133,6 +136,7 @@ function Sidebar({
       </div>
 
       {/* Navigation */}
+
       <div className="flex flex-col gap-2 p-2 mt-3 flex-1">
 
         {user?.role ===
@@ -173,26 +177,27 @@ function Sidebar({
                 </span>
               )}
             </NavLink>
+
+            <NavLink
+              to="/history"
+              className={
+                linkClass
+              }
+              title="History"
+            >
+              <FaHistory
+                size={18}
+              />
+
+              {!collapsed && (
+                <span>
+                  History
+                </span>
+              )}
+            </NavLink>
+
           </>
         )}
-
-        <NavLink
-        to="/history"
-        className={
-          linkClass
-        }
-        title="History"
-      >
-        <FaHistory
-          size={18}
-        />
-
-        {!collapsed && (
-          <span>
-            History
-          </span>
-        )}
-      </NavLink>
 
         <NavLink
           to="/books"
@@ -233,6 +238,7 @@ function Sidebar({
       </div>
 
       {/* Logout */}
+
       <div className="p-3 border-t border-[#4F7C65] flex justify-center">
 
         <button
