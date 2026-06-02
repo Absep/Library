@@ -2,7 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-
+import toast from 'react-hot-toast'
 import api
 from '../services/api'
 
@@ -15,6 +15,9 @@ from '../hooks/useDebounce'
 function Books() {
   const [books, setBooks] =
     useState([])
+  
+  const [collapsed, setCollapsed] =
+  useState(false)
 
   const [search, setSearch] =
     useState('')
@@ -110,27 +113,31 @@ function Books() {
           },
         )
 
-        alert(
+        toast.success(
           'Book Borrowed Successfully',
         )
 
         fetchBooks()
 
       } catch (error) {
-        alert(
+        toast.error(
           error.response?.data
             ?.message ||
           'Could not borrow book',
         )
       }
     }
+    
 
   return (
     <div className="flex">
 
-      <Sidebar />
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
-      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-10">
 
         <h1 className="text-4xl font-bold mb-6">
           Books

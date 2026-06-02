@@ -1,18 +1,27 @@
 import {
-  Link,
+  NavLink,
   useNavigate,
 } from 'react-router-dom'
 
-function Sidebar() {
+import {
+  FaChartBar,
+  FaTools,
+  FaBook,
+  FaBookOpen,
+  FaSignOutAlt,
+  FaBars,
+} from 'react-icons/fa'
+
+function Sidebar({
+  collapsed,
+  setCollapsed,
+}) {
   const navigate =
     useNavigate()
 
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        'user',
-      ),
-    )
+  const user = JSON.parse(
+    localStorage.getItem('user'),
+  )
 
   const handleLogout =
     () => {
@@ -27,83 +36,214 @@ function Sidebar() {
       navigate('/')
     }
 
+  const toggleSidebar =
+    () => {
+      const newValue =
+        !collapsed
+
+      setCollapsed(newValue)
+
+      localStorage.setItem(
+        'sidebarCollapsed',
+        JSON.stringify(
+          newValue,
+        ),
+      )
+    }
+
+  const linkClass = ({
+    isActive,
+  }) =>
+    `
+    flex
+    items-center
+    ${
+      collapsed
+        ? 'justify-center'
+        : 'gap-3'
+    }
+    p-3
+    rounded-lg
+    transition-all
+    duration-200
+    ${
+      isActive
+        ? `
+          bg-[#4F7C65]
+          text-white
+          shadow-lg
+          border-l-4
+          border-white
+        `
+        : `
+          hover:bg-[#4F7C65]
+          hover:translate-x-1
+        `
+    }
+  `
+
   return (
-    <div className="w-64 h-screen bg-[#365545] text-white p-5 fixed">
+    <div
+      className={`
+        h-screen
+        min-h-screen
+        bg-[#365545]
+        text-white
+        flex
+        flex-col
+        flex-shrink-0
+        shadow-lg
+        transition-all
+        duration-300
+        ${
+          collapsed
+            ? 'w-16'
+            : 'w-56'
+        }
+      `}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 px-3 py-4 border-b border-[#4F7C65]">
 
-      <h1 className="text-2xl font-bold mb-10">
-        Library
-      </h1>
+        <button
+          onClick={
+            toggleSidebar
+          }
+          className="
+            w-10
+            h-10
+            flex
+            items-center
+            justify-center
+            rounded-lg
+            hover:bg-[#4F7C65]
+            transition-all
+          "
+        >
+          <FaBars size={18} />
+        </button>
 
-      <div className="flex flex-col gap-4">
+        {!collapsed && (
+          <h1 className="text-xl font-bold">
+            Library
+          </h1>
+        )}
+
+      </div>
+
+      {/* Navigation */}
+      <div className="flex flex-col gap-2 p-2 mt-3 flex-1">
 
         {user?.role ===
           'ADMIN' && (
           <>
-            <Link
+            <NavLink
               to="/dashboard"
-              className="
-              text-gray-100
-              hover:text-white
-              hover:bg-[#4F7C65]
-              rounded-lg
-              p-2
-              transition-all
-              "
+              className={
+                linkClass
+              }
+              title="Dashboard"
             >
-              Dashboard
-            </Link>
+              <FaChartBar
+                size={18}
+              />
 
-            <Link
+              {!collapsed && (
+                <span>
+                  Dashboard
+                </span>
+              )}
+            </NavLink>
+
+            <NavLink
               to="/admin-books"
-              className="
-              text-gray-100
-              hover:text-white
-              hover:bg-[#4F7C65]
-              rounded-lg
-              p-2
-              transition-all
-              "
+              className={
+                linkClass
+              }
+              title="Manage Books"
             >
-              Manage Books
-            </Link>
+              <FaTools
+                size={18}
+              />
+
+              {!collapsed && (
+                <span>
+                  Manage Books
+                </span>
+              )}
+            </NavLink>
           </>
         )}
 
-        <Link
+        <NavLink
           to="/books"
-          className="
-          text-gray-100
-          hover:text-white
-          hover:bg-[#4F7C65]
-          rounded-lg
-          p-2
-          transition-all
-          "
+          className={
+            linkClass
+          }
+          title="Books"
         >
-          Books
-        </Link>
+          <FaBook
+            size={18}
+          />
 
-        <Link
+          {!collapsed && (
+            <span>
+              Books
+            </span>
+          )}
+        </NavLink>
+
+        <NavLink
           to="/borrowed-books"
-          className="
-          text-gray-100
-          hover:text-white
-          hover:bg-[#4F7C65]
-          rounded-lg
-          p-2
-          transition-all
-"
+          className={
+            linkClass
+          }
+          title="Borrowed Books"
         >
-          Borrowed Books
-        </Link>
+          <FaBookOpen
+            size={18}
+          />
+
+          {!collapsed && (
+            <span>
+              Borrowed Books
+            </span>
+          )}
+        </NavLink>
+
+      </div>
+
+      {/* Logout */}
+      <div className="p-3 border-t border-[#4F7C65] flex justify-center">
 
         <button
           onClick={
             handleLogout
           }
-          className="bg-red-500 p-2 rounded mt-10"
+          className={`
+            bg-red-500
+            hover:bg-red-600
+            transition-all
+            rounded-lg
+            flex
+            items-center
+            justify-center
+            ${
+              collapsed
+                ? 'w-10 h-10'
+                : 'w-full py-2 gap-2'
+            }
+          `}
         >
-          Logout
+          <FaSignOutAlt
+            size={18}
+          />
+
+          {!collapsed && (
+            <span>
+              Logout
+            </span>
+          )}
         </button>
 
       </div>

@@ -6,6 +6,8 @@ function AdminBooks() {
   const [books, setBooks] = useState([])
   const [search, setSearch] =
     useState('')
+  const [collapsed, setCollapsed] =
+    useState(false)
 
   const [form, setForm] = useState({
     title: '',
@@ -211,12 +213,17 @@ function AdminBooks() {
         )
       }
     }
+    
 
   return (
     <div className="flex">
-      <Sidebar />
 
-      <div className="ml-64 w-full min-h-screen bg-[#F8F7F4] p-10">
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
+
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-10">
 
         <h1 className="text-4xl font-bold mb-6">
           Manage Books

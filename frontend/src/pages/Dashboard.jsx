@@ -45,12 +45,25 @@ function Dashboard() {
       }
     }
 
+  const [collapsed, setCollapsed] =
+  useState(false)
+
   return (
     <div className="flex">
 
-      <Sidebar />
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
-      <div className="ml-64 min-h-screen bg-[#F8F7F4] p-10 w-full">
+      <div className={`
+          flex-1
+          min-h-screen
+          bg-[#F8F7F4]
+          p-10
+          transition-all
+          duration-300
+        `}>
 
         <h1 className="text-5xl font-bold text-[#365545] mb-2">
           Admin Dashboard
