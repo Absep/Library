@@ -163,18 +163,6 @@ GOOGLE_CLIENT_SECRET=
 
 ---
 
-## Future Improvements
-
-* Refresh Tokens
-* Email Notifications
-* Fine Calculation
-* Redis Caching
-* Advanced Search Filters
-* Transaction Management
-* Audit Logs
-
----
-
 ## Author
 
 Abse Wahab
