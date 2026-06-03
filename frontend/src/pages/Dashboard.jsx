@@ -144,7 +144,17 @@ function Dashboard() {
 
                       <div
                         key={item.id}
-                        className="flex justify-between items-center border-b border-gray-100 pb-4"
+                        className="
+                        flex
+                        flex-col
+                        md:flex-row
+                        md:justify-between
+                        md:items-center
+                        gap-3
+                        border-b
+                        border-gray-100
+                        pb-4
+                      "
                       >
 
                         <div>

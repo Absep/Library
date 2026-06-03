@@ -223,9 +223,9 @@ function AdminBooks() {
         setCollapsed={setCollapsed}
       />
 
-      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-10">
+      <div className="flex-1 min-h-screen bg-[#F8F7F4] p-4 md:p-6 lg:p-10">
 
-        <h1 className="text-4xl font-bold mb-6">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">
           Manage Books
         </h1>
 
@@ -247,7 +247,7 @@ function AdminBooks() {
           }
           className="bg-white p-6 rounded-xl shadow mb-8"
         >
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <input
               type="text"
@@ -259,7 +259,7 @@ function AdminBooks() {
               onChange={
                 handleChange
               }
-              className="border p-3 rounded"
+              className="border p-3 rounded w-full"
               required
             />
 
@@ -273,7 +273,7 @@ function AdminBooks() {
               onChange={
                 handleChange
               }
-              className="border p-3 rounded"
+              className="border p-3 rounded w-full"
               required
             />
 
@@ -287,7 +287,7 @@ function AdminBooks() {
               onChange={
                 handleChange
               }
-              className="border p-3 rounded"
+              className="border p-3 rounded w-full"
               required
             />
 
@@ -301,7 +301,7 @@ function AdminBooks() {
               onChange={
                 handleChange
               }
-              className="border p-3 rounded"
+              className="border p-3 rounded w-full"
               required
             />
 
@@ -318,7 +318,7 @@ function AdminBooks() {
 
         </form>
 
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
           {books.length ===
           0 ? (

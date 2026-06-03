@@ -61,6 +61,11 @@ function Login() {
     }
   }
 
+  const handleGoogleLogin = () => {
+    window.location.href =
+      'http://localhost:3000/auth/google';
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4]">
 
@@ -105,6 +110,15 @@ hover:bg-[#365545] hover:bg-blue-600 text-white p-3 rounded transition"
         >
           Login
         </button>
+        
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full mt-3 border border-gray-300 p-3 rounded bg-white hover:bg-gray-100"
+        >
+          Continue with Google
+        </button>
+
         <p className="mt-4 text-center">
           Don't have an account?
 

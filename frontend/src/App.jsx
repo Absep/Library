@@ -10,6 +10,7 @@ import Books from './pages/Books'
 import BorrowedBooks from './pages/BorrowedBooks'
 import AdminBooks from './pages/AdminBooks'
 import History from './pages/History'
+import OAuthSuccess from './pages/OAuthSuccess'
 
 import ProtectedRoute
   from './components/ProtectedRoute'
@@ -43,6 +44,11 @@ function App() {
             <AdminBooks />
           </ProtectedRoute>
         }
+      />
+
+      <Route
+        path="/oauth-success"
+        element={<OAuthSuccess />}
       />
 
       <Route
