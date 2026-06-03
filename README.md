@@ -2,7 +2,9 @@
 
 ## Overview
 
-A full-stack Library Management System built using React, NestJS, Prisma, and PostgreSQL. The application provides secure authentication, role-based access control, book management, and borrowing functionalities for students and administrators.
+A full-stack Library Management System developed using React, NestJS, Prisma, and PostgreSQL. The application provides secure authentication through JWT and Google OAuth 2.0, role-based access control for administrators and students, comprehensive book inventory management, borrow and return workflows, copy tracking, overdue fine calculation, search and filtering capabilities, and an administrative dashboard with real-time library statistics.
+
+The system is designed to streamline library operations while demonstrating modern full-stack development practices, secure authentication mechanisms, REST API development, database management, and responsive user interface design.
 
 ---
 
